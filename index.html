@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=1440">
+	<title>???? - a Ludum Dare 39 Entry by @zenmumbler</title>
+	<style>
+		body {
+			margin: 0; background: black;
+			cursor: default;
+			-webkit-user-select: none;
+			-moz-user-select: none;
+			-ms-user-select: none;
+			user-select: none;
+
+			font-family: Tahoma, sans-serif;
+		}
+		.stageholder {
+			margin: 50px auto 0 auto;
+			position: relative;
+			overflow: hidden;
+		}
+		.stageholder.small {
+			width: 960px;
+			height: 540px;
+		}
+		.stageholder.hdready {
+			width: 1280px;
+			height: 720px;
+		}
+		.stageholder.fullhd {
+			width: 1920px;
+			height: 1080px;
+		}
+
+		#stage {
+			position: absolute;
+			z-index: 3;
+		}
+
+		.overlay {
+			position: absolute;
+			z-index: 4;
+			width: 100%;
+			height: 100%;
+			display: none;
+			color: #999;
+			font-size: 22px;
+		}
+		.titles {
+			background-color: white;
+		}
+		.titles img {
+			position: absolute;
+			left: 340px;
+			top: 120px;
+			opacity: 1;
+			transition: opacity 2s ease-in;
+		}
+		.titles p {
+			position: absolute;
+			top: 340px;
+			width: 100%;
+			text-align: center;
+			font-size: 16px;
+		}
+		p.thx {
+			top: 400px;
+		}
+		.right {
+			position: absolute;
+			right: 150px;
+			top: 50px;
+		}
+		.start {
+			margin-top: 50px;
+		}
+
+		.messages p {
+			position: absolute;
+			text-align: center;
+			left: 0;
+			right: 0;
+			bottom: 35%;
+		}
+
+
+		.bar {
+			position: absolute;
+			width: 500px;
+			height: 12px;
+			left: 390px;
+			top: 350px;
+			border: 1px solid white;
+			padding: 1px;
+		}
+		.progress {
+			background-color: rgb(178, 67, 255);
+			height: 100%;
+			width: 0;
+		}
+
+		.butan {
+			display: inline-block;
+			width: 100px;
+			padding: 10px;
+			border: 1px solid white;
+			text-align: center;
+			cursor: pointer;
+		}
+		.butan.pres {
+			color: black;
+			background: white;
+		}
+		.butan.begin {
+			width: 300px;
+			font-size: 36px;
+		}
+
+		.info {
+			font-size: 14px;
+			color: #888;
+			text-align: center;
+			position: absolute;
+			top: 12px;
+			width: 100%;
+			margin: 0;
+			padding: 0;
+		}
+
+		.controls {
+			text-align: center;
+			padding-top: 20px;
+			color: #555;
+			font-size: 12px;
+		}
+		.controls button {
+			border: 1px solid #555;
+			color: #555;
+			background: black;
+			border-radius: 4px;
+		}
+		.controls:hover {
+			color: #aaa;
+		}
+		.controls:hover button {
+			border: 1px solid #aaa;
+			color: #aaa;
+
+		}
+		.controls label, .controls input, .controls button {
+			cursor: pointer;
+		}
+		.controls input[disabled], .controls input[disabled] + label {
+			color: #555;
+			cursor: default;
+		}
+		.controls button:hover {
+			color: white;
+		}
+		.controls button:active {
+			background: #aaa;
+			color: #333;
+		}
+
+		a, a:visited, a:active {
+			color: rgba(178, 67, 255, .8);
+		}
+	</style>
+</head>
+<body>
+
+<div class="stageholder hdready">
+	<canvas width="1280" height="720" id="stage"></canvas>
+
+	<div class="overlay loading">
+		<div class="bar"><div class="progress"></div></div>
+	</div>
+
+	<div class="overlay titles">
+		<p>A title</p>
+	</div>
+
+</div>
+
+<div class="controls">
+	Resolution:
+	<input type="radio" name="vpsize" data-vps="small" id="vps-small"><label for="vps-small">540p</label>
+	<input type="radio" name="vpsize" data-vps="hdready" id="vps-hdready" checked><label for="vps-hdready">720p</label>
+	<input type="radio" name="vpsize" data-vps="fullhd" id="vps-fullhd"><label for="vps-fullhd">1080p</label>
+	&mdash;
+	<button id="fullscreen">Play Fullscreen</button>
+</div>
+
+<script src="../stardazed/ext/veclib.js"></script>
+<script src="../stardazed/ext/inflate.js"></script>
+<script src="../stardazed/dist/stardazed.js"></script>
+<script src="build/ld39.js"></script>
+
+</body>
+</html>
