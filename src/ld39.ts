@@ -6,7 +6,7 @@
 
 class LD39Scene implements sd.SceneDelegate {
 	scene: sd.Scene;
-	basic: BasicEffect;
+	basic: render.Effect;
 
 	loadAssets(): Promise<render.RenderCommandBuffer> {
 		const assets: Promise<void>[] = [
@@ -27,15 +27,15 @@ class LD39Scene implements sd.SceneDelegate {
 	buildWorld(): Promise<void> {
 		this.scene.camera.perspective(65, .1, 100);
 
-		this.basic = this.scene.rd.effectByName("basic")! as BasicEffect;
-		// this.bed = this.be.makeEffectData();
-		// this.be.setTexture(this.bed, "diffuse", this.tex);
+		this.basic = this.scene.rd.effectByName("basic")!;
+		// this.bed = this.basic.makeEffectData();
+		// this.basic.setTexture(this.bed, "diffuse", this.tex);
 
 		return Promise.resolve();
 	}
 
 	update(timeStep: number) {
-		// this.be.setVector(this.bed, "tint", new Float32Array([1, .5 + .5 * Math.sin(this.t), 0]));
+		// this.basic.setVector(this.bed, "tint", new Float32Array([1, .5 + .5 * Math.sin(this.t), 0]));
 		this.scene.camera.lookAt([2, 0, 0], [0, 0, 0], [0, 1, 0]);
 	}
 
@@ -47,19 +47,18 @@ class LD39Scene implements sd.SceneDelegate {
 		const cmds = scene.lighting.prepareLightsForRender(
 			scene.lights.allEnabled(),
 			scene.camera,
-			image.makePixelDimensions(100, 100),
 			scene.camera.viewport
 		);
 
 		cmds.setFrameBuffer(null, render.ClearMask.ColourDepth, { colour: [0.08, 0.07, 0.06, 1.0] });
-		// this.be.addRenderJobs(this.bed, this.scene.camera, mat4.create(), this.sphere, this.sphere.subMeshes[0], cmds);
+		// this.basic.addRenderJobs(this.bed, this.scene.camera, mat4.create(), this.sphere, this.sphere.subMeshes[0], cmds);
 
 		return cmds;
 	}
 }
 
 
-dom.on(window, "load", () => {
+sd.App.messages.listenOnce("AppStart", undefined, () => {
 	// -- create managers
 	const canvas = document.getElementById("stage") as HTMLCanvasElement;
 	const rdev = new render.gl1.GL1RenderDevice(canvas);
