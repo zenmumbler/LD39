@@ -84,7 +84,7 @@ interface BasicEffectData extends render.EffectData {
 }
 
 class BasicEffect implements render.Effect {
-	readonly name = "BasicEffect";
+	readonly name = "basic";
 
 	private rd_: render.gl1.GL1RenderDevice;
 	private sampler_: render.Sampler;
