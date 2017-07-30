@@ -102,6 +102,7 @@ class BasicEffect implements render.Effect {
 		rcmd.allocate(this.sampler_);
 		rcmd.allocate(this.shader_);
 		this.rd_.dispatch(rcmd);
+		this.rd_.processFrame();
 	}
 
 	addRenderJobs(
@@ -111,8 +112,8 @@ class BasicEffect implements render.Effect {
 		mesh: meshdata.MeshData, primGroup: meshdata.PrimitiveGroup,
 		toBuffer: render.RenderCommandBuffer
 	) {
-		const mvp = mat4.multiply(this.tempMat4_, modelMatrix, camera.viewProjMatrix);
-		const normMat = mat3.normalFromMat4(this.tempMat3_, mvp);
+		const mvp = mat4.multiply(mat4.create(), camera.viewProjMatrix, modelMatrix);
+		const normMat = mat3.normalFromMat4(mat3.create(), mvp);
 
 		toBuffer.render({
 			mesh,
