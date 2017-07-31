@@ -1,4 +1,4 @@
-// Untitled - a game for LD39: Running out of Power
+// RUN! Before the Power runs out! - a game for LD39: Running out of Power
 // (c) 2017 by Arthur Langereis — @zenmumbler
 
 /// <reference path="../../stardazed/dist/stardazed.d.ts" />
