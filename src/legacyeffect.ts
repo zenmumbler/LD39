@@ -186,7 +186,7 @@ vec3 getLightContribution(LightEntry light, vec3 normal_cam) {
 				vec3 matColour = mainColour.rgb * texColour;
 				vec3 normal_cam = normalize(vertexNormal_cam);
 
-				vec3 totalLight = vec3(0.0);
+				vec3 totalLight = vec3(0.015, 0.01, 0.02); // vec3(0.0);
 
 				vec2 fragCoord = vec2(gl_FragCoord.x, lightLUTParam.y - gl_FragCoord.y);
 				vec2 lightOffsetCount = getLightGridCell(fragCoord);
