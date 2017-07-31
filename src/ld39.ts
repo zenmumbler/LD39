@@ -20,6 +20,9 @@ class LD39Scene implements sd.SceneDelegate {
 	tex: render.Texture;
 	sphere: meshdata.MeshData;
 	box: meshdata.MeshData;
+	sound_: Sound;
+	soundAssets: SoundAssets;
+
 	sphereShape: physics.PhysicsShape;
 	boxShape: physics.PhysicsShape;
 	sphereObject: GameObject;
@@ -27,8 +30,15 @@ class LD39Scene implements sd.SceneDelegate {
 	t = 0;
 
 	loadAssets(): Promise<render.RenderCommandBuffer> {
+		this.sound_ = new Sound(this.scene.ad);
+		this.soundAssets = { steps: [] as AudioBuffer[] } as SoundAssets;
+
 		const assets = [
 			image.loadImage(io.localURL("data/TexturesCom_MarblePolishedRed_diffuse_M.png")),
+
+			loadSoundFile(this.scene.ad, "data/sound/Bart-Roijmans-Bigboss-looped.mp3").then(buf => { this.soundAssets.music = buf; }),
+			loadSoundFile(this.scene.ad, "data/sound/34253__ddohler__hard-walking_0.mp3").then(buf => { this.soundAssets.steps[0] = buf; }),
+			loadSoundFile(this.scene.ad, "data/sound/34253__ddohler__hard-walking_1.mp3").then(buf => { this.soundAssets.steps[1] = buf; }),
 		];
 
 		return Promise.all(assets).then(
@@ -102,6 +112,8 @@ class LD39Scene implements sd.SceneDelegate {
 			range: 1
 		});
 
+		this.sound_.setAssets(this.soundAssets);
+		this.sound_.startMusic();
 		return Promise.resolve();
 	}
 

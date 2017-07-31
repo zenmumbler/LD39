@@ -4,6 +4,7 @@
 /// <reference path="../../stardazed/dist/stardazed.d.ts" />
 
 import io = sd.io;
+import asset = sd.asset;
 import image = sd.image;
 import math = sd.math;
 import entity = sd.entity;
@@ -14,5 +15,6 @@ import container = sd.container;
 import audio = sd.audio;
 import physics = sd.physics;
 import system = sd.system;
+import control = sd.control;
 
 const { vec2, vec3, vec4, quat, mat3, mat4 } = veclib;
