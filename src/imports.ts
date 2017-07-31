@@ -13,5 +13,6 @@ import dom = sd.dom;
 import container = sd.container;
 import audio = sd.audio;
 import physics = sd.physics;
+import system = sd.system;
 
 const { vec2, vec3, vec4, quat, mat3, mat4 } = veclib;

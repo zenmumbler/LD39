@@ -1,20 +1,21 @@
-// Untitled - a game for LD39: Running out of Power
+// ZAMBIES - a game for LD39: Running out of Power
 // (c) 2017 by Arthur Langereis — @zenmumbler
 
 /// <reference path="imports.ts" />
-/// <reference path="basiceffect.ts" />
+/// <reference path="legacyeffect.ts" />
 
 interface GameObject {
 	entity: entity.Entity;
 	transform: entity.TransformInstance;
-	collider: entity.ColliderInstance;
-	mesh: entity.MeshInstance;
-	effectData: render.EffectData;
+	collider?: entity.ColliderInstance;
+	mesh?: entity.MeshInstance;
+	effectData?: render.EffectData;
+	light?: entity.LightInstance;
 }
 
 class LD39Scene implements sd.SceneDelegate {
 	scene: sd.Scene;
-	basic: render.Effect;
+	legacy: render.Effect;
 	bed: render.EffectData;
 	tex: render.Texture;
 	sphere: meshdata.MeshData;
@@ -60,9 +61,11 @@ class LD39Scene implements sd.SceneDelegate {
 		const scene = this.scene;
 		this.scene.camera.perspective(65, .1, 100);
 
-		this.basic = this.scene.rd.effectByName("basic")!;
-		this.bed = this.basic.makeEffectData();
-		this.basic.setTexture(this.bed, "diffuse", this.tex);
+		this.legacy = this.scene.rd.effectByName("legacy")!;
+		(this.legacy as LegacyEffect).useLightingSystem(scene.lighting);
+
+		this.bed = this.legacy.makeEffectData();
+		this.legacy.setTexture(this.bed, "diffuse", this.tex);
 
 		const makeGO = (mass: number, position: sd.ConstFloat3, meshData: meshdata.MeshData, shape: physics.PhysicsShape): GameObject => {
 			const entity = scene.entities.create();
@@ -77,16 +80,35 @@ class LD39Scene implements sd.SceneDelegate {
 			return { entity, transform, collider, mesh, effectData };
 		};
 
-		this.sphereObject = makeGO(1, [0, 2.5, 0], this.sphere, this.sphereShape);
+		const makeLight = (position: sd.ConstFloat3, lightDesc: entity.Light): GameObject => {
+			const entity = scene.entities.create();
+			const transform = scene.transforms.create(entity, { position });
+			const light = scene.lights.create(entity, lightDesc);
+			return { entity, transform, light };
+		};
+
+		this.sphereObject = makeGO(1, [0, 3, 0], this.sphere, this.sphereShape);
 		this.boxObject = makeGO(0, [0, 0, 0.7], this.box, this.boxShape);
+		makeLight([1.5, .7, 0], {
+			type: entity.LightType.Point,
+			colour: [1, 1, 1],
+			intensity: 2,
+			range: 1.8
+		});
+		makeLight([.8, -.5, 1.2], {
+			type: entity.LightType.Point,
+			colour: [0, 1, 0],
+			intensity: 1,
+			range: 1
+		});
 
 		return Promise.resolve();
 	}
 
 	update(timeStep: number) {
 		this.t += timeStep;
-		this.basic.setVector(this.bed, "tint", new Float32Array([1, .5 + .5 * Math.sin(this.t), 0]));
-		this.scene.camera.lookAt([4, 0.7, 0], [0, 0.7, 0], [0, 1, 0]);
+		// this.legacy.setVector(this.bed, "tint", new Float32Array([1, .5 + .5 * Math.sin(this.t), 0, 0]));
+		this.scene.camera.lookAt([4.5, 1.2, 2.5], [0, 0.7, 0], [0, 1, 0]);
 	}
 
 	frame(timeStep: number) {
@@ -102,9 +124,9 @@ class LD39Scene implements sd.SceneDelegate {
 			scene.camera.viewport
 		);
 
-		cmds.setFrameBuffer(null, render.ClearMask.ColourDepth, { colour: [0.08, 0.07, 0.06, 1.0] });
-		this.basic.addRenderJobs(this.sphereObject.effectData, this.scene.camera, scene.transforms.worldMatrix(this.sphereObject.transform), this.sphere, this.sphere.subMeshes[0], cmds);
-		this.basic.addRenderJobs(this.boxObject.effectData, this.scene.camera, scene.transforms.worldMatrix(this.boxObject.transform), this.box, this.box.subMeshes[0], cmds);
+		cmds.setFrameBuffer(null, render.ClearMask.ColourDepth, { colour: [0.3, 0.3, 0.3, 1.0] });
+		this.legacy.addRenderJobs(this.sphereObject.effectData!, this.scene.camera, scene.transforms.worldMatrix(this.sphereObject.transform), this.sphere, this.sphere.subMeshes[0], cmds);
+		this.legacy.addRenderJobs(this.boxObject.effectData!, this.scene.camera, scene.transforms.worldMatrix(this.boxObject.transform), this.box, this.box.subMeshes[0], cmds);
 
 		return cmds;
 	}
@@ -117,7 +139,7 @@ sd.App.messages.listenOnce("AppStart", undefined, () => {
 	const rdev = new render.gl1.GL1RenderDevice(canvas);
 	const adev = audio.makeAudioDevice()!;
 
-	rdev.registerEffect(new BasicEffect());
+	rdev.registerEffect(new LegacyEffect());
 
 	const scene = new sd.Scene(rdev, adev, {
 		assetURLMapping: {},
