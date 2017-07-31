@@ -20,16 +20,15 @@ class LD39Scene implements sd.SceneDelegate {
 	bed: render.EffectData;
 	tex: render.Texture;
 
-	sphere: meshdata.MeshData;
-	box: meshdata.MeshData;
+	boxMesh: meshdata.MeshData;
 	baseMesh: meshdata.MeshData;
 
 	sound_: Sound;
 	soundAssets: SoundAssets;
 
-	sphereShape: physics.PhysicsShape;
 	boxShape: physics.PhysicsShape;
 	baseShape: physics.PhysicsShape;
+	boxes: GameObject[] = [];
 
 	baseObject: GameObject;
 
@@ -47,20 +46,17 @@ class LD39Scene implements sd.SceneDelegate {
 			loadSoundFile(this.scene.ad, "data/sound/Bart-Roijmans-Bigboss-looped.mp3").then(buf => { this.soundAssets.music = buf; }),
 			loadSoundFile(this.scene.ad, "data/sound/34253__ddohler__hard-walking_0.mp3").then(buf => { this.soundAssets.steps[0] = buf; }),
 			loadSoundFile(this.scene.ad, "data/sound/34253__ddohler__hard-walking_1.mp3").then(buf => { this.soundAssets.steps[1] = buf; }),
+			loadSoundFile(this.scene.ad, "data/sound/381957__avensol__security-alarm.mp3").then(buf => { this.soundAssets.alarm = buf; }),
+			loadSoundFile(this.scene.ad, "data/sound/363122__el-bee__landmass-earth-rumble.mp3").then(buf => { this.soundAssets.tremble = buf; }),
 		];
 
 		return Promise.all(assets as Promise<any>[]).then(
 			([img, baseGroup]) => {
 				this.tex = render.makeTex2DFromProvider(img as image.PixelDataProvider, render.MipMapMode.Regenerate);
 
-				const cubeHalfExt = 0.7;
-				this.sphere = meshdata.gen.generate(new meshdata.gen.Sphere({ radius: 1, rows: 16, segs: 16 }));
-				this.box = meshdata.gen.generate(new meshdata.gen.Box(meshdata.gen.cubeDescriptor(cubeHalfExt * 2)));
-
-				this.sphereShape = physics.makeShape({
-					type: physics.PhysicsShapeType.Sphere,
-					radius: 1
-				})!;
+				// -- boxes
+				const cubeHalfExt = 0.25;
+				this.boxMesh = meshdata.gen.generate(new meshdata.gen.Box(meshdata.gen.cubeDescriptor(cubeHalfExt * 2)));
 				this.boxShape = physics.makeShape({
 					type: physics.PhysicsShapeType.Box,
 					halfExtents: [cubeHalfExt, cubeHalfExt, cubeHalfExt]
@@ -76,8 +72,7 @@ class LD39Scene implements sd.SceneDelegate {
 
 				const rcb = new render.RenderCommandBuffer();
 				rcb.allocate(this.tex);
-				rcb.allocate(this.sphere);
-				rcb.allocate(this.box);
+				rcb.allocate(this.boxMesh);
 				rcb.allocate(this.baseMesh);
 				return rcb;
 			}
@@ -127,6 +122,7 @@ class LD39Scene implements sd.SceneDelegate {
 			range: 7
 		});
 
+		this.boxes.push(makeGO(.5, [-1, .3, 7], this.boxMesh, this.boxShape));
 		this.baseObject = makeGO(0, [0, 0, 0], this.baseMesh, this.baseShape);
 
 		this.playerCtl = new PlayerController(dom.$1("#stage"), [0, 1.1, 0], scene, this.sound_);
@@ -155,6 +151,9 @@ class LD39Scene implements sd.SceneDelegate {
 		);
 
 		cmds.setFrameBuffer(null, render.ClearMask.ColourDepth, { colour: [0.3, 0.3, 0.3, 1.0] });
+		for (const box of this.boxes) {
+			this.legacy.addRenderJobs(box.effectData!, this.scene.camera, scene.transforms.worldMatrix(box.transform), this.boxMesh, this.boxMesh.subMeshes[0], cmds);
+		}
 		for (const bsm of this.baseMesh.subMeshes) {
 			this.legacy.addRenderJobs(this.baseObject.effectData!, this.scene.camera, scene.transforms.worldMatrix(this.baseObject.transform), this.baseMesh, bsm, cmds);
 		}
