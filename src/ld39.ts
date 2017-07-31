@@ -79,6 +79,64 @@ class LD39Scene implements sd.SceneDelegate {
 		);
 	}
 
+	fullscreenStuff() {
+		dom.on(dom.$(`input[type="radio"]`), "click", evt => {
+			const radio = evt.target as HTMLInputElement;
+			if (radio.checked) {
+				const vpsSize = radio.dataset["vps"] || "hdready";
+				const holder = dom.$1(".stageholder");
+				holder.className = `stageholder ${vpsSize}`;
+				const canvas = (this.scene.rd as render.gl1.GL1RenderDevice).gl.canvas;
+				canvas.width = ({ small: 960, hdready: 1280, fullhd: 1920 } as any)[vpsSize];
+				canvas.height = ({ small: 540, hdready: 720, fullhd: 1080 } as any)[vpsSize];
+				this.scene.camera.resizeViewport(canvas.width, canvas.height);
+			}
+		});
+
+		dom.on("#fullscreen", "click", () => {
+			// if (this.mode_ == GameMode.Main) {
+				const canvas = dom.$1(".stageholder");
+				canvas.requestPointerLock();
+				(canvas.requestFullscreen || canvas.webkitRequestFullscreen || canvas.mozRequestFullScreen).call(canvas);
+			// }
+		});
+
+		const fsch = () => {
+			const canvas = dom.$1(".stageholder");
+			const rd = this.scene.rd;
+			if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement) {
+				const scaleFactor = Math.min(screen.width / rd.drawableWidth, screen.height / rd.drawableHeight);
+
+				// Firefox needs the pointerlock request after fullscreen activates
+				canvas.requestPointerLock();
+
+				if (document.mozFullScreenElement) {
+					const hOffset = Math.round((screen.width - rd.drawableWidth) / (2 * scaleFactor)) + "px";
+					const vOffset = Math.round((screen.height - rd.drawableHeight) / (2 * scaleFactor)) + "px";
+
+					dom.$(".stageholder > *").forEach((e: HTMLElement) => {
+						e.style.transform = `scale(${scaleFactor}) translate(${hOffset}, ${vOffset})`;
+					});
+				}
+				else {
+					// Safari and Chrome, the vOffset is for macOS to adjust for the menubar
+					const vOffset = "-13px"; // on macOS this == Math.round((screen.availHeight - screen.height) / 2) + "px", Chrome Windows keeps this for compat reasons?
+					canvas.style.transform = `scale(${scaleFactor}) translate(0, ${vOffset})`;
+				}
+			}
+			else {
+				canvas.style.transform = "";
+				dom.$(".stageholder > *").forEach((e: HTMLElement) => {
+					e.style.transform = "";
+				});
+			}
+		};
+
+		dom.on(document, "fullscreenchange", fsch);
+		dom.on(document, "webkitfullscreenchange", fsch);
+		dom.on(document, "mozfullscreenchange", fsch);
+	}
+
 	buildWorld(): Promise<void> {
 		const scene = this.scene;
 		this.scene.camera.perspective(65, .1, 20);
@@ -139,6 +197,8 @@ class LD39Scene implements sd.SceneDelegate {
 		this.sound_.setAssets(this.soundAssets);
 		this.sound_.startMusic();
 
+		this.fullscreenStuff();
+
 		return Promise.resolve();
 	}
 
@@ -162,7 +222,8 @@ class LD39Scene implements sd.SceneDelegate {
 			scene.camera.viewport
 		);
 
-		cmds.setFrameBuffer(null, render.ClearMask.ColourDepth, { colour: [0.3, 0.3, 0.3, 1.0] });
+		cmds.setFrameBuffer(null, render.ClearMask.ColourDepth, { colour: [0.0, 0.0, 0.0, 1.0] });
+		cmds.setViewport(scene.camera.viewport);
 		for (const box of this.boxes) {
 			this.legacy.addRenderJobs(box.effectData!, this.scene.camera, scene.transforms.worldMatrix(box.transform), this.boxMesh, this.boxMesh.subMeshes[0], cmds);
 		}

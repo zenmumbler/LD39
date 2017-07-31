@@ -114,6 +114,9 @@ class PlayerController {
 
 		// -- mouse based rotation
 		dom.on(sensingElem, "mousedown", (evt: MouseEvent) => {
+			const canvas = dom.$1(".stageholder");
+			canvas.requestPointerLock();
+
 			this.tracking_ = true;
 			this.lastPos_ = [evt.clientX, evt.clientY];
 		});

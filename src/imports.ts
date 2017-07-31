@@ -18,3 +18,12 @@ import system = sd.system;
 import control = sd.control;
 
 const { vec2, vec3, vec4, quat, mat3, mat4 } = veclib;
+
+interface Element {
+	mozRequestFullScreen(): void;
+}
+
+interface Document {
+	mozFullScreenElement: HTMLElement;
+}
+
