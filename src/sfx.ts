@@ -121,8 +121,8 @@ class Sound {
 		var rate: number | null = null;
 
 		switch (what) {
-			case SFX.FootStep: buffer = assets.steps[this.stepToggle]; source = this.stepSource; gain = this.stepGain; volume = .8; rate = 1; this.stepToggle ^= 1; break;
-			case SFX.Tremble: buffer = assets.tremble; source = this.effectSource; gain = this.effectGain; volume = 1; rate = 1.0; break;
+			case SFX.FootStep: buffer = assets.steps[this.stepToggle]; source = this.stepSource; gain = this.stepGain; volume = 1; rate = 1; this.stepToggle ^= 1; break;
+			case SFX.Tremble: buffer = assets.tremble; source = this.effectSource; gain = this.effectGain; volume = 1.5; rate = 1.0; break;
 			case SFX.Zombies: buffer = assets.zombies; source = this.effectSource; gain = this.effectGain; volume = 1; rate = 1.0; break;
 			case SFX.DoneGood: buffer = assets.doneGood; source = this.effectSource; gain = this.effectGain; volume = 1; rate = 1.0; break;
 

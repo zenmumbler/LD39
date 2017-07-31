@@ -104,6 +104,7 @@ class PlayerController {
 	private tracking_ = false;
 	private lastPos_ = [0, 0];
 	private keyboardType_ = KeyboardType.QWERTY;
+	private shakeOffset_ = [0, 0];
 
 	constructor(sensingElem: HTMLElement, initialPos: sd.Float3, private scene: sd.Scene, private sfx: Sound) {
 		this.view = new PlayerView(initialPos, scene);
@@ -176,6 +177,12 @@ class PlayerController {
 		}
 	}
 
+	public shaking = false;
+
+	get shakeOffset() {
+		return this.shakeOffset_;
+	}
+
 	step(timeStep: number) {
 		const maxAccel = 60;
 		var accel = 0, sideAccel = 0;
@@ -200,6 +207,18 @@ class PlayerController {
 			else {
 				this.sfx.startAlarm();
 			}
+		}
+		if (control.keyboard.pressed(control.Key.K)) {
+			this.shaking = !this.shaking;
+			if (this.shaking) {
+				this.sfx.play(SFX.Tremble);
+			}
+		}
+		if (this.shaking) {
+			vec2.sub(this.shakeOffset_, vec2.random(this.shakeOffset_, 0.03), [0.015, 0.015]);
+		}
+		else {
+			vec2.set(this.shakeOffset_, 0, 0);
 		}
 
 		this.view.update(timeStep, accel, sideAccel);

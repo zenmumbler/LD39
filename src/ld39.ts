@@ -134,7 +134,9 @@ class LD39Scene implements sd.SceneDelegate {
 
 	update(timeStep: number) {
 		this.playerCtl.step(timeStep);
-		this.scene.camera.lookAt(this.playerCtl.view.pos, this.playerCtl.view.focusPos, this.playerCtl.view.up);
+		const finalEye = this.playerCtl.view.pos;
+		vec2.add(finalEye, finalEye, this.playerCtl.shakeOffset);
+		this.scene.camera.lookAt(finalEye, this.playerCtl.view.focusPos, this.playerCtl.view.up);
 	}
 
 	frame(timeStep: number) {
