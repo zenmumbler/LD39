@@ -209,11 +209,33 @@ class LD39Scene implements sd.SceneDelegate {
 		this.scene.camera.lookAt(finalEye, this.playerCtl.view.focusPos, this.playerCtl.view.up);
 	}
 
+	flicker = false;
+	flickerEnd = 3.0;
+
 	frame(timeStep: number) {
 		const scene = this.scene;
 
 		this.update(timeStep);
 		scene.physics.update(timeStep);
+
+		// flicker lights
+		const now = sd.App.globalTime;
+		if (now > this.flickerEnd) {
+			const willFlicker = Math.random() < 0.01;
+
+			if (willFlicker !== this.flicker) {
+				this.flicker = willFlicker;
+				if (willFlicker) {
+					this.flickerEnd = now + 0.1;
+				}
+				const intensity = willFlicker ? (math.intRandomRange(9, 12) / 10) : 1.5;
+
+				const lit = scene.lights.allEnabled().makeIterator();
+				while (lit.next()) {
+					scene.lights.setIntensity(lit.current, intensity);
+				}
+			}
+		}
 
 		// creating render commands
 		const cmds = scene.lighting.prepareLightsForRender(
