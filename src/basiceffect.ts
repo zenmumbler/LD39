@@ -53,13 +53,13 @@ namespace sd.render.gl1 {
 			],
 
 			constants: [
-				{ name: "mainColour", type: SVT.Float3 }
+				{ name: "mainColour", type: SVT.Float4 }
 			],
 
 			main: `
 				// gl_FragColor = vec4((vertexNormal_cam / 2.0) + 0.5, 1.0);
 				vec3 diffuse = texture2D(diffuseSampler, vertexUV_intp).rgb;
-				gl_FragColor = vec4(pow(diffuse * mainColour, vec3(1.0 / 2.2)), 1.0);
+				gl_FragColor = vec4(pow(diffuse * mainColour.rgb, vec3(1.0 / 2.2)), 1.0);
 			`
 		};
 	}
@@ -137,7 +137,7 @@ class BasicEffect implements render.Effect {
 	makeEffectData(): BasicEffectData {
 		return {
 			diffuse: undefined,
-			tint: vec3.one()
+			tint: vec4.one()
 		};
 	}
 
@@ -149,11 +149,11 @@ class BasicEffect implements render.Effect {
 	}
 
 	getVector(evd: render.EffectData, name: string, out: sd.ArrayOfNumber): sd.ArrayOfNumber | undefined {
-		vec3.copy(out, (evd as BasicEffectData).tint);
+		vec4.copy(out, (evd as BasicEffectData).tint);
 		return out;
 	}
 	setVector(evd: render.EffectData, name: string, vec: sd.ArrayOfConstNumber) {
-		vec3.copy((evd as BasicEffectData).tint, vec);
+		vec4.copy((evd as BasicEffectData).tint, vec);
 	}
 
 	getValue(evd: render.EffectData, name: string): number | undefined {
