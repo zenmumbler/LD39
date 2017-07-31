@@ -15,6 +15,7 @@ const enum Music {
 
 interface SoundAssets {
 	steps: AudioBuffer[];
+	alarm: AudioBuffer;
 	music: AudioBuffer;
 	tremble: AudioBuffer;
 	zombies: AudioBuffer;
@@ -50,10 +51,12 @@ class Sound {
 
 		this.stepGain = ctx.createGain();
 		this.musicGain = ctx.createGain();
+		this.alarmGain = ctx.createGain();
 		this.effectGain = ctx.createGain();
 
 		this.stepGain.connect(ctx.destination);
 		this.musicGain.connect(ctx.destination);
+		this.alarmGain.connect(ctx.destination);
 		this.effectGain.connect(ctx.destination);
 	}
 
@@ -82,13 +85,17 @@ class Sound {
 		}
 	}
 
+	get alarmPlaying() {
+		return this.alarmSource != null;
+	}
+
 	startAlarm() {
 		if (! this.alarmSource) {
 			this.alarmSource = this.ctx.createBufferSource();
-			this.alarmSource.buffer = this.assets_.music;
+			this.alarmSource.buffer = this.assets_.alarm;
 			this.alarmSource.loop = true;
-			this.alarmSource.connect(this.musicGain);
-			this.alarmGain.gain.value = 0.7;
+			this.alarmSource.connect(this.alarmGain);
+			this.alarmGain.gain.value = 0.9;
 
 			this.alarmSource.start(0);
 		}

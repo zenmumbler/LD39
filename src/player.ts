@@ -193,6 +193,15 @@ class PlayerController {
 			sideAccel = maxAccel;
 		}
 
+		if (control.keyboard.pressed(control.Key.L)) {
+			if (this.sfx.alarmPlaying) {
+				this.sfx.stopAlarm();
+			}
+			else {
+				this.sfx.startAlarm();
+			}
+		}
+
 		this.view.update(timeStep, accel, sideAccel);
 
 		this.handleStepSounds();
