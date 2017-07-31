@@ -33,6 +33,7 @@ class LD39Scene implements sd.SceneDelegate {
 
 	baseObject: GameObject;
 
+	playerCtl: PlayerController;
 
 	loadAssets(): Promise<render.RenderCommandBuffer> {
 		this.sound_ = new Sound(this.scene.ad);
@@ -127,6 +128,8 @@ class LD39Scene implements sd.SceneDelegate {
 		});
 
 		this.baseObject = makeGO(0, [0, 0, 0], this.baseMesh, this.baseShape);
+
+		this.playerCtl = new PlayerController(dom.$1("#stage"), [0, 1.1, 0], scene, this.sound_);
 		this.sound_.setAssets(this.soundAssets);
 		this.sound_.startMusic();
 
@@ -134,6 +137,7 @@ class LD39Scene implements sd.SceneDelegate {
 	}
 
 	update(timeStep: number) {
+		this.playerCtl.step(timeStep);
 		this.scene.camera.lookAt(this.playerCtl.view.pos, this.playerCtl.view.focusPos, this.playerCtl.view.up);
 	}
 
