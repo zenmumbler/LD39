@@ -109,18 +109,28 @@ class LD39Scene implements sd.SceneDelegate {
 			return { entity, transform, light };
 		};
 
-		makeLight([0, 2.8, 2], {
-			type: entity.LightType.Point,
-			colour: [1, 1, 1],
-			intensity: 1.5,
-			range: 5
-		});
-		makeLight([0, 2.8, 10], {
-			type: entity.LightType.Point,
-			colour: [1, 1, 1],
-			intensity: 1.5,
-			range: 5
-		});
+		const makeCeilingLight = (x: number, z: number) => {
+			makeLight([x, 2.8, z], {
+				type: entity.LightType.Point,
+				colour: [1, 1, 1],
+				intensity: 1.5,
+				range: 4.5
+			});
+		};
+
+		makeCeilingLight(0, 2);
+		makeCeilingLight(0, 10);
+		makeCeilingLight(0, 18);
+		makeCeilingLight(0, 26);
+		makeCeilingLight(0, 34);
+		makeCeilingLight(0, 42);
+		makeCeilingLight(0, 50);
+		makeCeilingLight(0, 58);
+		makeCeilingLight(0, 66);
+		makeCeilingLight(0, 74);
+		makeCeilingLight(0, 82);
+		makeCeilingLight(0, 90);
+		makeCeilingLight(0, 98);
 
 		this.boxes.push(makeGO(.5, [-1, .3, 7], this.boxMesh, this.boxShape));
 		this.baseObject = makeGO(0, [0, 0, 0], this.baseMesh, this.baseShape);
