@@ -204,7 +204,8 @@ vec3 getLightContribution(LightEntry light, vec3 normal_cam) {
 				}
 
 				float fogDensity = clamp((length(vertexPos_cam) - fogParams[FOGPARAM_START]) / fogParams[FOGPARAM_DEPTH], 0.0, fogParams[FOGPARAM_DENSITY]);
-				totalLight = mix(totalLight * matColour, fogColour.rgb, fogDensity);
+				// totalLight = mix(totalLight * matColour, fogColour.rgb, fogDensity);
+				totalLight = totalLight * matColour;
 
 				gl_FragColor = vec4(pow(totalLight, vec3(1.0 / 2.2)), 1.0);
 				// gl_FragColor = vec4(totalLight, 1.0);
