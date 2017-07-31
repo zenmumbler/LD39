@@ -81,7 +81,7 @@ class LD39Scene implements sd.SceneDelegate {
 
 	buildWorld(): Promise<void> {
 		const scene = this.scene;
-		this.scene.camera.perspective(65, .1, 100);
+		this.scene.camera.perspective(65, .1, 20);
 
 		this.legacy = this.scene.rd.effectByName("legacy")!;
 		(this.legacy as LegacyEffect).useLightingSystem(scene.lighting);

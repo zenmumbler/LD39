@@ -240,7 +240,7 @@ class LegacyEffect implements render.Effect {
 	private shader_: render.Shader;
 
 	fogColour = vec4.fromValues(0, 0, 0, 1);
-	fogParams = vec4.fromValues(10.0, 15.0, 1, 0);
+	fogParams = vec4.fromValues(8.0, 11.5, 1, 0);
 
 	private lighting: system.Lighting;
 
