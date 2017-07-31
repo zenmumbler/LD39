@@ -2,6 +2,7 @@
 // (c) 2017 by Arthur Langereis — @zenmumbler
 
 /// <reference path="imports.ts" />
+/// <reference path="sfx.ts" />
 /// <reference path="legacyeffect.ts" />
 
 interface GameObject {
@@ -18,16 +19,20 @@ class LD39Scene implements sd.SceneDelegate {
 	legacy: render.Effect;
 	bed: render.EffectData;
 	tex: render.Texture;
+
 	sphere: meshdata.MeshData;
 	box: meshdata.MeshData;
+	baseMesh: meshdata.MeshData;
+
 	sound_: Sound;
 	soundAssets: SoundAssets;
 
 	sphereShape: physics.PhysicsShape;
 	boxShape: physics.PhysicsShape;
-	sphereObject: GameObject;
-	boxObject: GameObject;
-	t = 0;
+	baseShape: physics.PhysicsShape;
+
+	baseObject: GameObject;
+
 
 	loadAssets(): Promise<render.RenderCommandBuffer> {
 		this.sound_ = new Sound(this.scene.ad);
@@ -36,14 +41,16 @@ class LD39Scene implements sd.SceneDelegate {
 		const assets = [
 			image.loadImage(io.localURL("data/TexturesCom_MarblePolishedRed_diffuse_M.png")),
 
+			sd.asset.loadOBJFile(io.localURL("data/base.obj")),
+
 			loadSoundFile(this.scene.ad, "data/sound/Bart-Roijmans-Bigboss-looped.mp3").then(buf => { this.soundAssets.music = buf; }),
 			loadSoundFile(this.scene.ad, "data/sound/34253__ddohler__hard-walking_0.mp3").then(buf => { this.soundAssets.steps[0] = buf; }),
 			loadSoundFile(this.scene.ad, "data/sound/34253__ddohler__hard-walking_1.mp3").then(buf => { this.soundAssets.steps[1] = buf; }),
 		];
 
-		return Promise.all(assets).then(
-			([img]) => {
-				this.tex = render.makeTex2DFromProvider(img, render.MipMapMode.Regenerate);
+		return Promise.all(assets as Promise<any>[]).then(
+			([img, baseGroup]) => {
+				this.tex = render.makeTex2DFromProvider(img as image.PixelDataProvider, render.MipMapMode.Regenerate);
 
 				const cubeHalfExt = 0.7;
 				this.sphere = meshdata.gen.generate(new meshdata.gen.Sphere({ radius: 1, rows: 16, segs: 16 }));
@@ -58,10 +65,19 @@ class LD39Scene implements sd.SceneDelegate {
 					halfExtents: [cubeHalfExt, cubeHalfExt, cubeHalfExt]
 				})!;
 
+				// -------- DA BASE
+				const baseG = baseGroup as asset.AssetGroup;
+				this.baseMesh = baseG.meshes[0];
+				this.baseShape = physics.makeShape({
+					type: physics.PhysicsShapeType.Mesh,
+					mesh: this.baseMesh
+				})!;
+
 				const rcb = new render.RenderCommandBuffer();
 				rcb.allocate(this.tex);
 				rcb.allocate(this.sphere);
 				rcb.allocate(this.box);
+				rcb.allocate(this.baseMesh);
 				return rcb;
 			}
 		);
@@ -97,30 +113,28 @@ class LD39Scene implements sd.SceneDelegate {
 			return { entity, transform, light };
 		};
 
-		this.sphereObject = makeGO(1, [0, 3, 0], this.sphere, this.sphereShape);
-		this.boxObject = makeGO(0, [0, 0, 0.7], this.box, this.boxShape);
-		makeLight([1.5, .7, 0], {
+		makeLight([0, 3.8, 6], {
 			type: entity.LightType.Point,
 			colour: [1, 1, 1],
 			intensity: 2,
-			range: 1.8
+			range: 7
 		});
-		makeLight([.8, -.5, 1.2], {
+		makeLight([0, 3.8, 14], {
 			type: entity.LightType.Point,
-			colour: [0, 1, 0],
-			intensity: 1,
-			range: 1
+			colour: [1, 1, 1],
+			intensity: 2,
+			range: 7
 		});
 
+		this.baseObject = makeGO(0, [0, 0, 0], this.baseMesh, this.baseShape);
 		this.sound_.setAssets(this.soundAssets);
 		this.sound_.startMusic();
+
 		return Promise.resolve();
 	}
 
 	update(timeStep: number) {
-		this.t += timeStep;
-		// this.legacy.setVector(this.bed, "tint", new Float32Array([1, .5 + .5 * Math.sin(this.t), 0, 0]));
-		this.scene.camera.lookAt([4.5, 1.2, 2.5], [0, 0.7, 0], [0, 1, 0]);
+		this.scene.camera.lookAt(this.playerCtl.view.pos, this.playerCtl.view.focusPos, this.playerCtl.view.up);
 	}
 
 	frame(timeStep: number) {
@@ -137,8 +151,9 @@ class LD39Scene implements sd.SceneDelegate {
 		);
 
 		cmds.setFrameBuffer(null, render.ClearMask.ColourDepth, { colour: [0.3, 0.3, 0.3, 1.0] });
-		this.legacy.addRenderJobs(this.sphereObject.effectData!, this.scene.camera, scene.transforms.worldMatrix(this.sphereObject.transform), this.sphere, this.sphere.subMeshes[0], cmds);
-		this.legacy.addRenderJobs(this.boxObject.effectData!, this.scene.camera, scene.transforms.worldMatrix(this.boxObject.transform), this.box, this.box.subMeshes[0], cmds);
+		for (const bsm of this.baseMesh.subMeshes) {
+			this.legacy.addRenderJobs(this.baseObject.effectData!, this.scene.camera, scene.transforms.worldMatrix(this.baseObject.transform), this.baseMesh, bsm, cmds);
+		}
 
 		return cmds;
 	}
