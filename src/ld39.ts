@@ -109,17 +109,17 @@ class LD39Scene implements sd.SceneDelegate {
 			return { entity, transform, light };
 		};
 
-		makeLight([0, 3.8, 6], {
+		makeLight([0, 2.8, 2], {
 			type: entity.LightType.Point,
 			colour: [1, 1, 1],
-			intensity: 2,
-			range: 7
+			intensity: 1.5,
+			range: 5
 		});
-		makeLight([0, 3.8, 14], {
+		makeLight([0, 2.8, 10], {
 			type: entity.LightType.Point,
 			colour: [1, 1, 1],
-			intensity: 2,
-			range: 7
+			intensity: 1.5,
+			range: 5
 		});
 
 		this.boxes.push(makeGO(.5, [-1, .3, 7], this.boxMesh, this.boxShape));

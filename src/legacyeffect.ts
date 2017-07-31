@@ -117,7 +117,7 @@ vec2 getLightGridCell(vec2 fragCoord) {
 }
 
 vec3 calcLightShared(vec3 lightColour, float intensity, float diffuseStrength, vec3 lightDirection, vec3 normal_cam) {
-	float NdL = max(0.0, dot(normal_cam, lightDirection));
+	float NdL = max(0.0, dot(normal_cam, -lightDirection));
 	vec3 diffuseContrib = lightColour * diffuseStrength * NdL * intensity;
 
 	// vec3 specularContrib = vec3(0.0);
@@ -204,8 +204,8 @@ vec3 getLightContribution(LightEntry light, vec3 normal_cam) {
 				}
 
 				float fogDensity = clamp((length(vertexPos_cam) - fogParams[FOGPARAM_START]) / fogParams[FOGPARAM_DEPTH], 0.0, fogParams[FOGPARAM_DENSITY]);
-				// totalLight = mix(totalLight * matColour, fogColour.rgb, fogDensity);
-				totalLight = totalLight * matColour;
+				totalLight = mix(totalLight * matColour, fogColour.rgb, fogDensity);
+				// totalLight = totalLight * matColour;
 
 				gl_FragColor = vec4(pow(totalLight, vec3(1.0 / 2.2)), 1.0);
 				// gl_FragColor = vec4(totalLight, 1.0);
@@ -240,7 +240,7 @@ class LegacyEffect implements render.Effect {
 	private shader_: render.Shader;
 
 	fogColour = vec4.fromValues(0, 0, 0, 1);
-	fogParams = vec4.fromValues(10.0, 5.0, 0.8, 0);
+	fogParams = vec4.fromValues(10.0, 15.0, 1, 0);
 
 	private lighting: system.Lighting;
 
@@ -268,8 +268,8 @@ class LegacyEffect implements render.Effect {
 		toBuffer: render.RenderCommandBuffer
 	) {
 		const mv = mat4.multiply(mat4.create(), camera.viewMatrix, modelMatrix);
-		const mvp = mat4.multiply(mat4.create(), camera.viewProjMatrix, modelMatrix);
-		const normMat = mat3.normalFromMat4(mat3.create(), mvp);
+		const mvp = mat4.multiply(mat4.create(), camera.projectionMatrix, mv);
+		const normMat = mat3.normalFromMat4(mat3.create(), mv);
 
 		const lightingSampler = this.lighting.lutTextureSampler;
 
