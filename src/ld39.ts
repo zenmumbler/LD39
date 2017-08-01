@@ -119,6 +119,15 @@ class LD39Scene implements sd.SceneDelegate {
 	}
 
 	fullscreenStuff() {
+		dom.on(".stageholder", "click", evt => {
+			// fullscreen on Win and Chrome in general implies pointer lock?
+			if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement) {
+				if (this.mode === "menu") {
+					this.begin();
+				}
+			}
+		});
+
 		dom.on(dom.$(`input[type="radio"]`), "click", evt => {
 			const radio = evt.target as HTMLInputElement;
 			if (radio.checked) {
@@ -360,6 +369,7 @@ class LD39Scene implements sd.SceneDelegate {
 	showMessage(msg: string) {
 		dom.$1("p.message").textContent = msg;
 		dom.show("p.message");
+		dom.$1("p.message").style.zIndex = "6";
 		this.hideMessage = sd.App.globalTime + 4;
 	}
 
@@ -385,7 +395,7 @@ class LD39Scene implements sd.SceneDelegate {
 	begin() {
 		this.mode = "play";
 		dom.hide(".overlay.titles");
-		dom.$1("p.timer").textContent = "02:00";
+		dom.$1("p.timer").textContent = "01:45";
 		dom.show("p.timer");
 		this.playerCtl.view.reset();
 		this.playerCtl.tryCaptureMouse();

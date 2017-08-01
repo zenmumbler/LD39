@@ -40,7 +40,8 @@ namespace sd.render.gl1 {
 		};
 	}
 
-	function legacyFragmentFunction(): GL1FragmentFunction {
+	function legacyFragmentFunction(noSRGB: boolean): GL1FragmentFunction {
+		const sRGBCorrect = noSRGB ? `texColour = pow(texColour, vec3(2.2));` : "";
 		return {
 			in: [
 				{ name: "vertexPos_world", type: SVT.Float4 },
@@ -184,6 +185,7 @@ vec3 getLightContribution(LightEntry light, vec3 normal_cam) {
 
 			main: `
 				vec3 texColour = texture2D(diffuseSampler, vertexUV_intp).rgb;
+				${sRGBCorrect}
 				vec3 matColour = mainColour.rgb * texColour;
 				vec3 normal_cam = normalize(vertexNormal_cam);
 
@@ -214,9 +216,9 @@ vec3 getLightContribution(LightEntry light, vec3 normal_cam) {
 		};
 	}
 
-	export function makeLegacyShader(): Shader {
+	export function makeLegacyShader(rd: GL1RenderDevice): Shader {
 		const vertexFunction = legacyVertexFunction();
-		const fragmentFunction = legacyFragmentFunction();
+		const fragmentFunction = legacyFragmentFunction(rd.extSRGB == undefined);
 
 		return {
 			renderResourceType: ResourceType.Shader,
@@ -253,7 +255,7 @@ class LegacyEffect implements render.Effect {
 	linkWithDevice(rd: render.RenderDevice) {
 		this.rd_ = rd as render.gl1.GL1RenderDevice;
 		this.sampler_ = render.makeSampler();
-		this.shader_ = render.gl1.makeLegacyShader();
+		this.shader_ = render.gl1.makeLegacyShader(this.rd_);
 
 		const rcmd = new render.RenderCommandBuffer();
 		rcmd.allocate(this.sampler_);
