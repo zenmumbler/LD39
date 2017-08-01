@@ -19,7 +19,7 @@ class PlayerView {
 	readonly HEIGHT = 1.7;
 	readonly MASS = 70;
 
-	constructor(initialPos: sd.Float3, private scene: sd.Scene) {
+	constructor(public initialPos: sd.Float3, private scene: sd.Scene) {
 		this.rotate([0, 0]);
 
 		this.shape_ = physics.makeShape({
@@ -53,6 +53,15 @@ class PlayerView {
 		vec3.normalize(this.dir_, this.dir_);
 		vec3.transformQuat(this.up_, [0, 1, 0], this.rot_);
 		vec3.normalize(this.up_, this.up_);
+	}
+
+	reset() {
+		this.angleX_ = 0;
+		this.angleY_ = 0;
+		this.rotate([0, 0]);
+		this.scene.transforms.setPositionAndRotation(this.transform_, this.initialPos, this.rot_);
+		this.tempTX_.setFromOpenGLMatrix(this.scene.transforms.worldMatrix(this.transform_));
+		this.rigidBody_.setWorldTransform(this.tempTX_);
 	}
 
 	update(timeStep: number, acceleration: number, sideAccel: number) {
@@ -114,8 +123,7 @@ class PlayerController {
 
 		// -- mouse based rotation
 		dom.on(sensingElem, "mousedown", (evt: MouseEvent) => {
-			const canvas = dom.$1(".stageholder");
-			canvas.requestPointerLock();
+			this.tryCaptureMouse();
 
 			this.tracking_ = true;
 			this.lastPos_ = [evt.clientX, evt.clientY];
@@ -139,6 +147,10 @@ class PlayerController {
 		});
 	}
 
+	tryCaptureMouse() {
+		const canvas = dom.$1(".stageholder");
+		canvas.requestPointerLock();
+	}
 
 	private keyForKeyCommand(cmd: KeyCommand): control.Key {
 		let keys: control.Key[] | undefined;
@@ -173,10 +185,14 @@ class PlayerController {
 			}
 		}
 		else {
-			if (this.stepSoundTimer_ > -1) {
-				clearInterval(this.stepSoundTimer_);
-				this.stepSoundTimer_ = -1;
-			}
+			this.stopSteps();
+		}
+	}
+
+	stopSteps() {
+		if (this.stepSoundTimer_ > -1) {
+			clearInterval(this.stepSoundTimer_);
+			this.stepSoundTimer_ = -1;
 		}
 	}
 
@@ -209,12 +225,6 @@ class PlayerController {
 			}
 			else {
 				this.sfx.startAlarm();
-			}
-		}
-		if (control.keyboard.pressed(control.Key.K)) {
-			this.shaking = !this.shaking;
-			if (this.shaking) {
-				this.sfx.play(SFX.Tremble);
 			}
 		}
 		if (this.shaking) {

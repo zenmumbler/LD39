@@ -72,7 +72,7 @@ class Sound {
 			this.musicSource.buffer = this.assets_.music;
 			this.musicSource.loop = true;
 			this.musicSource.connect(this.musicGain);
-			this.musicGain.gain.value = 0.7;
+			this.musicGain.gain.value = 0.60;
 
 			this.musicSource.start(0);
 		}

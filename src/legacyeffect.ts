@@ -26,6 +26,7 @@ namespace sd.render.gl1 {
 				{ name: "modelViewMatrix", type: SVT.Float4x4 },
 				{ name: "modelViewProjectionMatrix", type: SVT.Float4x4 },
 				{ name: "normalMatrix", type: SVT.Float3x3 },
+				{ name: "texScaleOffset", type: SVT.Float4 },
 			],
 
 			main: `
@@ -33,7 +34,7 @@ namespace sd.render.gl1 {
 				vertexPos_world = modelMatrix * vec4(vertexPos_model, 1.0);
 				vertexNormal_cam = normalMatrix * vertexNormal;
 				vertexPos_cam = (modelViewMatrix * vec4(vertexPos_model, 1.0)).xyz;
-				vertexUV_intp = vertexUV; // (vertexUV * texScaleOffset.xy) + texScaleOffset.zw;
+				vertexUV_intp = (vertexUV * texScaleOffset.xy) + texScaleOffset.zw;
 				// vertexColour_intp = vertexColour;
 			`
 		};
@@ -230,6 +231,7 @@ vec3 getLightContribution(LightEntry light, vec3 normal_cam) {
 interface LegacyEffectData extends render.EffectData {
 	diffuse: render.Texture | undefined;
 	tint: Float32Array;
+	texScaleOffset: Float32Array;
 }
 
 class LegacyEffect implements render.Effect {
@@ -293,7 +295,8 @@ class LegacyEffect implements render.Effect {
 				{ name: "fogColour", value: this.fogColour },
 				{ name: "fogParams", value: this.fogParams },
 				{ name: "lightLUTParam", value: this.lighting.lutParam },
-				{ name: "mainColour", value: (evData as LegacyEffectData).tint }
+				{ name: "mainColour", value: (evData as LegacyEffectData).tint },
+				{ name: "texScaleOffset", value: (evData as LegacyEffectData).texScaleOffset }
 			],
 			pipeline: {
 				depthTest: render.DepthTest.Less,
@@ -307,7 +310,8 @@ class LegacyEffect implements render.Effect {
 	makeEffectData(): LegacyEffectData {
 		return {
 			diffuse: undefined,
-			tint: vec4.one()
+			tint: vec4.one(),
+			texScaleOffset: vec4.fromValues(1, 1, 0, 0)
 		};
 	}
 
@@ -319,11 +323,21 @@ class LegacyEffect implements render.Effect {
 	}
 
 	getVector(evd: render.EffectData, name: string, out: sd.ArrayOfNumber): sd.ArrayOfNumber | undefined {
-		vec4.copy(out, (evd as LegacyEffectData).tint);
+		if (name === "tint") {
+			vec4.copy(out, (evd as LegacyEffectData).tint);
+		}
+		else if (name === "texScaleOffset") {
+			vec4.copy(out, (evd as LegacyEffectData).texScaleOffset);
+		}
 		return out;
 	}
 	setVector(evd: render.EffectData, name: string, vec: sd.ArrayOfConstNumber) {
-		vec4.copy((evd as LegacyEffectData).tint, vec);
+		if (name === "tint") {
+			vec4.copy((evd as LegacyEffectData).tint, vec);
+		}
+		else if (name === "texScaleOffset") {
+			vec4.copy((evd as LegacyEffectData).texScaleOffset, vec);
+		}
 	}
 
 	getValue(evd: render.EffectData, name: string): number | undefined {

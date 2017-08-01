@@ -1,45 +1,11 @@
-# Blender MTL File: 'None'
-# Material Count: 4
+newmtl walls
+map_Kd base/Blacktop_Old_01.jpg
 
-newmtl Blacktop_Old_01
-Ns 96.078431
-Ka 1.000000 1.000000 1.000000
-Kd 0.640000 0.640000 0.640000
-Ks 0.500000 0.500000 0.500000
-Ke 0.000000 0.000000 0.000000
-Ni -1.000000
-d 1.000000
-illum 2
-map_Kd /Users/arthur/Documents/Creations/sdtx/ld39/sources/base/Blacktop_Old_01.jpg
+newmtl floor
+map_Kd base/Concrete_Aggregate_Smoke.jpg
 
-newmtl Concrete_Aggregate_Smoke
-Ns 96.078431
-Ka 1.000000 1.000000 1.000000
-Kd 0.640000 0.640000 0.640000
-Ks 0.500000 0.500000 0.500000
-Ke 0.000000 0.000000 0.000000
-Ni -1.000000
-d 1.000000
-illum 2
-map_Kd /Users/arthur/Documents/Creations/sdtx/ld39/sources/base/Concrete_Aggregate_Smoke.jpg
+newmtl ceiling
+map_Kd base/Granite_Dark_Gray.jpg
 
-newmtl Concrete_Scored_Jointless
-Ns 96.078431
-Ka 1.000000 1.000000 1.000000
-Kd 0.640000 0.640000 0.640000
-Ks 0.500000 0.500000 0.500000
-Ke 0.000000 0.000000 0.000000
-Ni -1.000000
-d 1.000000
-illum 2
-map_Kd /Users/arthur/Documents/Creations/sdtx/ld39/sources/base/Concrete_Scored_Jointless.jpg
-
-newmtl material
-Ns 96.078431
-Ka 1.000000 1.000000 1.000000
-Kd 1.000000 1.000000 1.000000
-Ks 0.500000 0.500000 0.500000
-Ke 0.000000 0.000000 0.000000
-Ni -1.000000
-d 1.000000
-illum 2
+newmtl door
+map_Kd base/Ornate_Tile_01.jpg
