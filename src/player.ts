@@ -112,7 +112,6 @@ class PlayerController {
 	private vpHeight_: number;
 	private tracking_ = false;
 	private lastPos_ = [0, 0];
-	private keyboardType_ = KeyboardType.QWERTY;
 	private shakeOffset_ = [0, 0];
 
 	constructor(sensingElem: HTMLElement, initialPos: sd.Float3, private scene: sd.Scene, private sfx: Sound) {
@@ -160,6 +159,8 @@ class PlayerController {
 		}
 	}
 
+	public keyboardType = KeyboardType.QWERTY;
+
 	private keyForKeyCommand(cmd: KeyCommand): control.Key {
 		let keys: control.Key[] | undefined;
 		switch (cmd) {
@@ -180,7 +181,7 @@ class PlayerController {
 				break;
 		}
 
-		return keys ? keys[this.keyboardType_] : 0;
+		return keys ? keys[this.keyboardType] : 0;
 	}
 
 
@@ -188,7 +189,7 @@ class PlayerController {
 
 	handleStepSounds() {
 		if (this.view.moving) {
-			if (this.stepSoundTimer_ == -1) {
+			if (this.stepSoundTimer_ === -1) {
 				this.stepSoundTimer_ = setInterval(() => { this.sfx.play(SFX.FootStep); }, 300);
 			}
 		}
@@ -212,7 +213,7 @@ class PlayerController {
 
 	step(timeStep: number) {
 		const maxAccel = 60;
-		var accel = 0, sideAccel = 0;
+		let accel = 0, sideAccel = 0;
 
 		if (control.keyboard.down(control.Key.UP) || control.keyboard.down(this.keyForKeyCommand(KeyCommand.Forward))) {
 			accel = maxAccel;

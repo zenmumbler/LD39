@@ -118,6 +118,23 @@ class LD39Scene implements sd.SceneDelegate {
 		);
 	}
 
+	keyboardStuff() {
+		dom.on(dom.$(`input[type="radio"][name="keymap"]`), "click", evt => {
+			const radio = evt.target as HTMLInputElement;
+			if (radio.checked) {
+				const km = radio.dataset.km;
+				if (km === "qwerty") {
+					this.playerCtl.keyboardType = KeyboardType.QWERTY;
+					dom.$1("#keymapping").textContent = "WASD";
+				}
+				else {
+					this.playerCtl.keyboardType = KeyboardType.AZERTY;
+					dom.$1("#keymapping").textContent = "ZQSD";
+				}
+			}
+		});
+	}
+
 	fullscreenStuff() {
 		dom.on(".stageholder", "click", evt => {
 			// fullscreen on Win and Chrome in general implies pointer lock?
@@ -128,7 +145,7 @@ class LD39Scene implements sd.SceneDelegate {
 			}
 		});
 
-		dom.on(dom.$(`input[type="radio"]`), "click", evt => {
+		dom.on(dom.$(`input[type="radio"][name="vpsize"]`), "click", evt => {
 			const radio = evt.target as HTMLInputElement;
 			if (radio.checked) {
 				const vpsSize = radio.dataset.vps || "hdready";
@@ -305,6 +322,7 @@ class LD39Scene implements sd.SceneDelegate {
 		this.sound_.setAssets(this.soundAssets);
 		this.sound_.startMusic();
 
+		this.keyboardStuff();
 		this.fullscreenStuff();
 		dom.show(".overlay.titles");
 

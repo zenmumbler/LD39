@@ -134,8 +134,8 @@
 			font-size: 36px;
 		}
 
-		.info {
-			font-size: 14px;
+		.about {
+			font-size: 12px;
 			color: #888;
 			text-align: center;
 			position: absolute;
@@ -181,12 +181,17 @@
 		}
 
 		a, a:visited, a:active {
-			color: rgba(178, 67, 255, .8);
+			color: rgb(115, 101, 87);
 		}
 	</style>
 </head>
 <body>
 
+<p class="about">
+	&copy; 2017 by Arthur Langereis (<a href="https://twitter.com/zenmumbler">@zenmumbler</a>)
+	for <a href="https://ldjam.com/events/ludum-dare/39/run-before-the-power-goes-out">Ludum Dare 39</a> &mdash;
+	<a href="credits.html">credits &amp; asset acknowledgements</a>
+</p>
 <div class="stageholder hdready">
 	<canvas width="1280" height="720" id="stage"></canvas>
 
@@ -196,16 +201,20 @@
 
 	<div class="overlay titles">
 		<h1>RUN! Before the Power runs out!</h1>
-		<p class="info">Controls: WASD + Mouse (click in view to capture mouse) — ENABLE SOUND PLEASE</p>
+		<p class="info">Controls: <span id="keymapping">WASD</span> + Mouse (click in view to capture mouse) — ENABLE SOUND PLEASE</p>
 		<p class="hajime"><button class="butan begin" onclick="sd.App.scene.delegate.begin()">RUN!</button></p>
 	</div>
 
-	<p class="timer">02:00.0</p>
-	<p class="message">You beat the lap record!</p>
+	<p class="timer">01:45</p>
+	<p class="message"></p>
 
 </div>
 
 <div class="controls">
+	Keyboard Type:
+	<input type="radio" name="keymap" data-km="qwerty" id="km-qwerty" checked><label for="km-qwerty">QWERTY</label>
+	<input type="radio" name="keymap" data-km="azerty" id="km-azerty"><label for="km-azerty">AZERTY</label>
+	&mdash;
 	Resolution:
 	<input type="radio" name="vpsize" data-vps="small" id="vps-small"><label for="vps-small">540p</label>
 	<input type="radio" name="vpsize" data-vps="hdready" id="vps-hdready" checked><label for="vps-hdready">720p</label>
