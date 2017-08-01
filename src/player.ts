@@ -149,7 +149,15 @@ class PlayerController {
 
 	tryCaptureMouse() {
 		const canvas = dom.$1(".stageholder");
-		canvas.requestPointerLock();
+		if (canvas.requestPointerLock) {
+			canvas.requestPointerLock();
+		}
+	}
+
+	releaseMouse() {
+		if (document.exitPointerLock) {
+			document.exitPointerLock();
+		}
 	}
 
 	private keyForKeyCommand(cmd: KeyCommand): control.Key {

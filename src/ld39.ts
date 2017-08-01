@@ -262,8 +262,17 @@ class LD39Scene implements sd.SceneDelegate {
 		makeCeilingLight(-41, 50); // east final corridor
 		makeCeilingLight(-57, 50, [0, 1, 0]);
 
-		this.boxes.push(makeGO(1, [-1, .3, 7], this.boxMesh, this.boxED, this.boxShape));
 		this.baseObject = makeGO(0, [0, 0, 0], this.baseMesh, this.wallED, this.baseShape);
+
+		this.boxes.push(makeGO(1, [-1, .3, 7], this.boxMesh, this.boxED, this.boxShape));
+
+		this.boxes.push(makeGO(1, [-25, .3, 50.3], this.boxMesh, this.boxED, this.boxShape));
+		this.boxes.push(makeGO(1, [-25.1, .8, 50], this.boxMesh, this.boxED, this.boxShape));
+		this.boxes.push(makeGO(1, [-24.9, .3, 49.7], this.boxMesh, this.boxED, this.boxShape));
+		
+		this.boxes.push(makeGO(1, [24.7, .3, 54], this.boxMesh, this.boxED, this.boxShape));
+		this.boxes.push(makeGO(1, [23, .3, 55], this.boxMesh, this.boxED, this.boxShape));
+		this.boxes.push(makeGO(1, [23.4, .3, 54.1], this.boxMesh, this.boxED, this.boxShape));
 
 		this.playerCtl = new PlayerController(dom.$1("#stage"), [0, 1.1, 3], scene, this.sound_);
 		this.sound_.setAssets(this.soundAssets);
@@ -297,6 +306,7 @@ class LD39Scene implements sd.SceneDelegate {
 	reset() {
 		this.haveKeys = [false, false, false];
 		this.playerCtl.view.reset();
+		this.playerCtl.releaseMouse();
 
 		const lit = this.scene.lights.allEnabled().makeIterator();
 		while (lit.next()) {
@@ -472,6 +482,7 @@ class LD39Scene implements sd.SceneDelegate {
 						this.playerCtl.stopSteps();
 						this.mode = "end";
 						this.showMessage("You made it to safety! Congratulations!!");
+						setTimeout(() => { this.reset(); }, 8000);
 					}
 				}
 			}
