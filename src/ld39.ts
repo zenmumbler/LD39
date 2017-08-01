@@ -116,11 +116,12 @@ class LD39Scene implements sd.SceneDelegate {
 		});
 
 		dom.on("#fullscreen", "click", () => {
-			// if (this.mode_ == GameMode.Main) {
-				const canvas = dom.$1(".stageholder");
+			const canvas = dom.$1(".stageholder");
+			(canvas.requestFullscreen || canvas.webkitRequestFullscreen || canvas.mozRequestFullScreen).call(canvas);
+
+			if (this.mode == "play") {
 				canvas.requestPointerLock();
-				(canvas.requestFullscreen || canvas.webkitRequestFullscreen || canvas.mozRequestFullScreen).call(canvas);
-			// }
+			}
 		});
 
 		const fsch = () => {
