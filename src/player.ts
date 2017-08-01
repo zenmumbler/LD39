@@ -227,14 +227,6 @@ class PlayerController {
 			sideAccel = maxAccel;
 		}
 
-		if (control.keyboard.pressed(control.Key.L)) {
-			if (this.sfx.alarmPlaying) {
-				this.sfx.stopAlarm();
-			}
-			else {
-				this.sfx.startAlarm();
-			}
-		}
 		if (this.shaking) {
 			vec2.sub(this.shakeOffset_, vec2.random(this.shakeOffset_, 0.03), [0.015, 0.015]);
 		}
