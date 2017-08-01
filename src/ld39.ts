@@ -297,7 +297,7 @@ class LD39Scene implements sd.SceneDelegate {
 	flickerEnd = 3.0;
 	nextRumble = 8.0;
 	hideMessage = 0;
-	totalTime = 110;
+	totalTime = 105;
 
 	mode = "menu";
 	playStart = 0;
