@@ -44,25 +44,42 @@ class LD39Scene implements sd.SceneDelegate {
 
 	playerCtl: PlayerController;
 
+	willLoadAssets() {
+		dom.show(".overlay.loading");
+	}
+	finishedLoadingAssets() {
+		dom.hide(".overlay.loading");
+	}
+
 	loadAssets(): Promise<render.RenderCommandBuffer> {
 		this.sound_ = new Sound(this.scene.ad);
 		this.soundAssets = { steps: [] as AudioBuffer[] } as SoundAssets;
 
+		const totalAssets = 11;
+		let loadedAssets = 0;
+
+		const progress = () => {
+			loadedAssets += 1;
+			const ratio = loadedAssets / totalAssets;
+			dom.$1(".progress").style.width = (ratio * 100) + "%";
+		};
+
 		const assets = [
-			image.loadImage(io.localURL("data/TexturesCom_GrayBareConcrete_albedo_S.jpg")),
-			image.loadImage(io.localURL("data/TexturesCom_BrownConcrete_albedo_S.jpg")),
-			image.loadImage(io.localURL("data/ceil-a.jpg")),
-			image.loadImage(io.localURL("data/metalplate.jpg")),
-			image.loadImage(io.localURL("data/crate.jpg")),
+			image.loadImage(io.localURL("data/TexturesCom_GrayBareConcrete_albedo_S.jpg")).then(img => (progress(), img)),
+			image.loadImage(io.localURL("data/TexturesCom_BrownConcrete_albedo_S.jpg")).then(img => (progress(), img)),
+			image.loadImage(io.localURL("data/ceil-a.jpg")).then(img => (progress(), img)),
+			image.loadImage(io.localURL("data/metalplate.jpg")).then(img => (progress(), img)),
+			image.loadImage(io.localURL("data/crate.jpg")).then(img => (progress(), img)),
 
-			sd.asset.loadOBJFile(io.localURL("data/base.obj")),
+			sd.asset.loadOBJFile(io.localURL("data/base.obj")).then(img => (progress(), img)),
 
-			loadSoundFile(this.scene.ad, "data/sound/Bart-Roijmans-Bigboss-looped.mp3").then(buf => { this.soundAssets.music = buf; }),
-			loadSoundFile(this.scene.ad, "data/sound/34253__ddohler__hard-walking_0.mp3").then(buf => { this.soundAssets.steps[0] = buf; }),
-			loadSoundFile(this.scene.ad, "data/sound/34253__ddohler__hard-walking_1.mp3").then(buf => { this.soundAssets.steps[1] = buf; }),
-			loadSoundFile(this.scene.ad, "data/sound/381957__avensol__security-alarm.mp3").then(buf => { this.soundAssets.alarm = buf; }),
-			loadSoundFile(this.scene.ad, "data/sound/363122__el-bee__landmass-earth-rumble.mp3").then(buf => { this.soundAssets.tremble = buf; }),
+			loadSoundFile(this.scene.ad, "data/sound/Bart-Roijmans-Bigboss-looped.mp3").then(buf => { progress(); this.soundAssets.music = buf; }),
+			loadSoundFile(this.scene.ad, "data/sound/34253__ddohler__hard-walking_0.mp3").then(buf => { progress(); this.soundAssets.steps[0] = buf; }),
+			loadSoundFile(this.scene.ad, "data/sound/34253__ddohler__hard-walking_1.mp3").then(buf => { progress(); this.soundAssets.steps[1] = buf; }),
+			loadSoundFile(this.scene.ad, "data/sound/381957__avensol__security-alarm.mp3").then(buf => { progress(); this.soundAssets.alarm = buf; }),
+			loadSoundFile(this.scene.ad, "data/sound/363122__el-bee__landmass-earth-rumble.mp3").then(buf => { progress(); this.soundAssets.tremble = buf; }),
 		];
+
 
 		return Promise.all(assets as Promise<any>[]).then(
 			([wallTex, ceilTex, floorTex, doorTex, boxTex, baseGroup]) => {
