@@ -227,6 +227,11 @@ class PlayerController {
 			sideAccel = maxAccel;
 		}
 
+		if (accel !== 0 && sideAccel !== 0) {
+			accel = Math.sign(accel) * 42.43;
+			sideAccel = Math.sign(sideAccel) * 42.43;
+		} 
+
 		if (this.shaking) {
 			vec2.sub(this.shakeOffset_, vec2.random(this.shakeOffset_, 0.03), [0.015, 0.015]);
 		}
