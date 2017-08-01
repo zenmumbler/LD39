@@ -131,7 +131,7 @@ class LD39Scene implements sd.SceneDelegate {
 		dom.on(dom.$(`input[type="radio"]`), "click", evt => {
 			const radio = evt.target as HTMLInputElement;
 			if (radio.checked) {
-				const vpsSize = radio.dataset["vps"] || "hdready";
+				const vpsSize = radio.dataset.vps || "hdready";
 				const holder = dom.$1(".stageholder");
 				holder.className = `stageholder ${vpsSize}`;
 				const canvas = (this.scene.rd as render.gl1.GL1RenderDevice).gl.canvas;
@@ -145,7 +145,7 @@ class LD39Scene implements sd.SceneDelegate {
 			const canvas = dom.$1(".stageholder");
 			(canvas.requestFullscreen || canvas.webkitRequestFullscreen || canvas.mozRequestFullScreen).call(canvas);
 
-			if (this.mode == "play") {
+			if (this.mode === "play") {
 				canvas.requestPointerLock();
 			}
 		});
@@ -363,7 +363,7 @@ class LD39Scene implements sd.SceneDelegate {
 	}
 
 	keyCount() {
-		return this.haveKeys.reduce((sum, have) => { return sum + (+have); }, 0);
+		return this.haveKeys.reduce((sum, have) => sum + (+have), 0);
 	}
 
 	showMessage(msg: string) {
@@ -447,7 +447,7 @@ class LD39Scene implements sd.SceneDelegate {
 			const minutes = Math.floor(timeLeft / 60);
 			const seconds = Math.floor(timeLeft % 60);
 			let secondsStr = "" + seconds;
-			if (secondsStr.length < 2) secondsStr = "0" + secondsStr;
+			if (secondsStr.length < 2) { secondsStr = "0" + secondsStr; }
 			const millis = timeLeft - (60 * minutes) - seconds;
 			const timeStr = `0${minutes}:${secondsStr}`;
 			dom.$1("p.timer").textContent = timeStr;
