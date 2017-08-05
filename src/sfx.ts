@@ -72,7 +72,7 @@ class Sound {
 			this.musicSource.buffer = this.assets_.music;
 			this.musicSource.loop = true;
 			this.musicSource.connect(this.musicGain);
-			this.musicGain.gain.value = 0.60;
+			this.musicGain.gain.value = 0; // 0.60;
 
 			this.musicSource.start(0);
 		}
@@ -95,7 +95,7 @@ class Sound {
 			this.alarmSource.buffer = this.assets_.alarm;
 			this.alarmSource.loop = true;
 			this.alarmSource.connect(this.alarmGain);
-			this.alarmGain.gain.value = 0.9;
+			this.alarmGain.gain.value = 0; // 0.9;
 
 			this.alarmSource.start(0);
 		}
@@ -109,16 +109,16 @@ class Sound {
 	}
 
 	play(what: SFX) {
-		var assets = this.assets_;
+		const assets = this.assets_;
 		if (! this.ad) {
 			return;
 		}
 
-		var buffer: AudioBuffer | null = null;
-		var source: AudioBufferSourceNode | null = null;
-		var gain: GainNode | null = null;
-		var volume = 0;
-		var rate: number | null = null;
+		let buffer: AudioBuffer | null = null;
+		let source: AudioBufferSourceNode | null = null;
+		let gain: GainNode | null = null;
+		let volume = 0;
+		let rate: number | null = null;
 
 		switch (what) {
 			case SFX.FootStep: buffer = assets.steps[this.stepToggle]; source = this.stepSource; gain = this.stepGain; volume = 1; rate = 1; this.stepToggle ^= 1; break;
@@ -136,7 +136,7 @@ class Sound {
 			source.stop();
 		}
 
-		var bufferSource: AudioBufferSourceNode | null = this.ad.ctx.createBufferSource();
+		let bufferSource: AudioBufferSourceNode | null = this.ad.ctx.createBufferSource();
 		bufferSource.buffer = buffer;
 		bufferSource.connect(gain);
 		if (rate !== null) {
