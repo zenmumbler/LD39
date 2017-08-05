@@ -81,6 +81,8 @@ class PlayerView {
 		this.rigidBody_.setLinearVelocity(this.tempBV3_);
 	}
 
+	get rigidBody() { return this.rigidBody_; }
+
 	get pos() { return this.scene.transforms.localPosition(this.transform_); }
 	get dir() { return this.dir_; }
 	get rotation() { return this.rot_; }

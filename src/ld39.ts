@@ -351,6 +351,7 @@ class LD39Scene implements sd.SceneDelegate {
 	reset() {
 		this.haveKeys = [false, false, false];
 		this.playerCtl.view.reset();
+		this.playerCtl.view.rigidBody.setAngularFactor(new Ammo.btVector3(0, 1, 0));
 		this.playerCtl.releaseMouse();
 
 		const lit = this.scene.lights.allEnabled().makeIterator();
@@ -373,6 +374,7 @@ class LD39Scene implements sd.SceneDelegate {
 		this.hideMessage = 99999;
 		this.mode = "end";
 		this.playerCtl.stopSteps();
+		this.playerCtl.view.rigidBody.setAngularFactor(new Ammo.btVector3(1, 1, 1));
 		this.sound_.stopMusic();
 		this.sound_.stopAlarm();
 		this.sound_.play(SFX.Tremble);
