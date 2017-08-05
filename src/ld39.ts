@@ -342,7 +342,7 @@ class LD39Scene implements sd.SceneDelegate {
 	flickerEnd = 3.0;
 	nextRumble = 8.0;
 	hideMessage = 0;
-	totalTime = 105;
+	totalTime = 5;
 
 	mode = "menu";
 	playStart = 0;
@@ -350,8 +350,9 @@ class LD39Scene implements sd.SceneDelegate {
 
 	reset() {
 		this.haveKeys = [false, false, false];
-		this.playerCtl.view.reset();
+		this.playerCtl.view.rigidBody.setAngularVelocity(new Ammo.btVector3(0, 0, 0));
 		this.playerCtl.view.rigidBody.setAngularFactor(new Ammo.btVector3(0, 1, 0));
+		this.playerCtl.view.reset();
 		this.playerCtl.releaseMouse();
 
 		const lit = this.scene.lights.allEnabled().makeIterator();
