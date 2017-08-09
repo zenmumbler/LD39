@@ -215,6 +215,7 @@ class LD39Scene implements sd.SceneDelegate {
 
 		this.wallED = this.legacy.makeEffectData();
 		this.legacy.setTexture(this.wallED, "diffuse", this.wallTex);
+		this.legacy.setVector(this.wallED, "texScaleOffset", [.25, .25, 0, 0]);
 		this.ceilED = this.legacy.makeEffectData();
 		this.legacy.setTexture(this.ceilED, "diffuse", this.wallTex);
 		this.legacy.setVector(this.ceilED, "texScaleOffset", [.125, .125, 0, 0]);
