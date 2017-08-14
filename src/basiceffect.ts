@@ -93,8 +93,8 @@ class BasicEffect implements render.Effect {
 	private tempMat4_ = mat4.create();
 	private tempMat3_ = mat3.create();
 
-	linkWithDevice(rd: render.RenderDevice) {
-		this.rd_ = rd as render.gl1.GL1RenderDevice;
+	attachToRenderWorld(rw: render.RenderWorld) {
+		this.rd_ = rw.rd as render.gl1.GL1RenderDevice;
 		this.sampler_ = render.makeSampler();
 		this.shader_ = render.gl1.makeBasicShader();
 

@@ -240,20 +240,16 @@ class LegacyEffect implements render.Effect {
 	readonly name = "legacy";
 
 	private rd_: render.gl1.GL1RenderDevice;
+	private lighting_: render.TiledLight;
 	private sampler_: render.Sampler;
 	private shader_: render.Shader;
 
 	fogColour = vec4.fromValues(0, 0, 0, 1);
 	fogParams = vec4.fromValues(8.0, 11.5, 1, 0);
 
-	private lighting: render.TiledLight;
-
-	useLightingSystem(lighting: render.TiledLight) {
-		this.lighting = lighting;
-	}
-
-	linkWithDevice(rd: render.RenderDevice) {
-		this.rd_ = rd as render.gl1.GL1RenderDevice;
+	attachToRenderWorld(rw: render.RenderWorld) {
+		this.rd_ = rw.rd as render.gl1.GL1RenderDevice;
+		this.lighting_ = rw.lighting;
 		this.sampler_ = render.makeSampler();
 		this.shader_ = render.gl1.makeLegacyShader(this.rd_);
 
@@ -275,7 +271,7 @@ class LegacyEffect implements render.Effect {
 		const mvp = mat4.multiply(mat4.create(), camera.projectionMatrix, mv);
 		const normMat = mat3.normalFromMat4(mat3.create(), mv);
 
-		const lightingSampler = this.lighting.lutTextureSampler;
+		const lightingSampler = this.lighting_.lutTextureSampler;
 
 		toBuffer.render({
 			mesh,
@@ -296,7 +292,7 @@ class LegacyEffect implements render.Effect {
 
 				{ name: "fogColour", value: this.fogColour },
 				{ name: "fogParams", value: this.fogParams },
-				{ name: "lightLUTParam", value: this.lighting.lutParam },
+				{ name: "lightLUTParam", value: this.lighting_.lutParam },
 				{ name: "mainColour", value: (evData as LegacyEffectData).tint },
 				{ name: "texScaleOffset", value: (evData as LegacyEffectData).texScaleOffset }
 			],

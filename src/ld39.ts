@@ -208,8 +208,7 @@ class LD39Scene implements sd.SceneDelegate {
 		const scene = this.scene;
 		this.scene.camera.perspective(65, .1, 20);
 
-		this.legacy = this.scene.rw.rd.effectByName("legacy")!;
-		(this.legacy as LegacyEffect).useLightingSystem(this.scene.rw.lighting);
+		this.legacy = this.scene.rw.effectByName("legacy")!;
 
 		this.boxED = this.legacy.makeEffectData();
 		this.legacy.setTexture(this.boxED, "diffuse", this.boxTex);
@@ -575,7 +574,7 @@ sd.App.messages.listenOnce("AppStart", undefined, () => {
 	const rw = new render.RenderWorld(stageHolder, 1280, 720);
 	const adev = audio.makeAudioDevice()!;
 
-	rw.rd.registerEffect(new LegacyEffect());
+	rw.registerEffect(new LegacyEffect());
 
 	const scene = new sd.Scene(rw, adev, {
 		assetURLMapping: {},
