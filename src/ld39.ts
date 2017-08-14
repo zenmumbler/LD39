@@ -320,7 +320,7 @@ class LD39Scene implements sd.SceneDelegate {
 		this.boxes.push(makeGO(1, [23, .3, 55], this.boxMesh, this.boxED, this.boxShape));
 		this.boxes.push(makeGO(1, [23.4, .3, 54.1], this.boxMesh, this.boxED, this.boxShape));
 
-		this.playerCtl = new PlayerController(dom.$1("#stage"), [0, 1.1, 3], scene, this.sound_);
+		this.playerCtl = new PlayerController(dom.$1("canvas"), [0, 1.1, 3], scene, this.sound_);
 		this.sound_.setAssets(this.soundAssets);
 		this.sound_.startMusic();
 
@@ -570,14 +570,13 @@ class LD39Scene implements sd.SceneDelegate {
 
 
 sd.App.messages.listenOnce("AppStart", undefined, () => {
-	// -- create managers
-	const canvas = document.getElementById("stage") as HTMLCanvasElement;
-	const rdev = new render.gl1.GL1RenderDevice(canvas);
+	const stageHolder = dom.$1(".stageholder");
+	const rw = new render.RenderWorld(stageHolder, 1280, 720);
 	const adev = audio.makeAudioDevice()!;
 
-	rdev.registerEffect(new LegacyEffect());
+	rw.rd.registerEffect(new LegacyEffect());
 
-	const scene = new sd.Scene(rdev, adev, {
+	const scene = new sd.Scene(rw.rd, adev, {
 		assetURLMapping: {},
 		physicsConfig: physics.makeDefaultPhysicsConfig(),
 		delegate: new LD39Scene()

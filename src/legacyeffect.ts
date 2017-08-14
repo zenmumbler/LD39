@@ -246,9 +246,9 @@ class LegacyEffect implements render.Effect {
 	fogColour = vec4.fromValues(0, 0, 0, 1);
 	fogParams = vec4.fromValues(8.0, 11.5, 1, 0);
 
-	private lighting: material.TiledLight;
+	private lighting: render.TiledLight;
 
-	useLightingSystem(lighting: material.TiledLight) {
+	useLightingSystem(lighting: render.TiledLight) {
 		this.lighting = lighting;
 	}
 
