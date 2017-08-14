@@ -226,12 +226,13 @@ class LD39Scene implements sd.SceneDelegate {
 		this.legacy.setTexture(this.doorED, "diffuse", this.doorTex);
 		this.baseEDs = [this.wallED, this.ceilED, this.doorED, this.floorED];
 
-		const makeGO = (mass: number, position: sd.ConstFloat3, meshData: meshdata.MeshData, ed: render.EffectData, shape: physics.PhysicsShape): GameObject => {
+		const makeGO = (mass: number, position: sd.ConstFloat3, meshData: meshdata.MeshData, ed: render.EffectData, shape: physics.PhysicsShape, friction = 0.6): GameObject => {
 			const entity = scene.entities.create();
 			const transform = scene.transforms.create(entity, { position });
 			const collider = scene.colliders.create(entity, { rigidBody: {
 				mass,
-				shape
+				shape,
+				friction
 			}});
 			const mesh = scene.meshes.create(meshData);
 			scene.meshes.linkToEntity(mesh, entity);
@@ -307,7 +308,7 @@ class LD39Scene implements sd.SceneDelegate {
 		makeCeilingLight(-41, 50); // east final corridor
 		makeCeilingLight(-57, 50, [0, 1, 0]);
 
-		this.baseObject = makeGO(0, [0, 0, 0], this.baseMesh, this.wallED, this.baseShape);
+		this.baseObject = makeGO(0, [0, 0, 0], this.baseMesh, this.wallED, this.baseShape, .9);
 
 		this.boxes.push(makeGO(1, [-1, .3, 7], this.boxMesh, this.boxED, this.boxShape));
 
@@ -541,7 +542,9 @@ class LD39Scene implements sd.SceneDelegate {
 
 		// creating render commands
 		const cmds = scene.lighting.prepareLightsForRender(
+			scene.lights,
 			scene.lights.allEnabled(),
+			scene.transforms,
 			scene.camera,
 			scene.camera.viewport
 		);

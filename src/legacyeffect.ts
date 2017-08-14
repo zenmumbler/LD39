@@ -218,7 +218,7 @@ vec3 getLightContribution(LightEntry light, vec3 normal_cam) {
 
 	export function makeLegacyShader(rd: GL1RenderDevice): Shader {
 		const vertexFunction = legacyVertexFunction();
-		const fragmentFunction = legacyFragmentFunction(rd.extSRGB == undefined);
+		const fragmentFunction = legacyFragmentFunction(rd.extSRGB === undefined);
 
 		return {
 			renderResourceType: ResourceType.Shader,
@@ -246,9 +246,9 @@ class LegacyEffect implements render.Effect {
 	fogColour = vec4.fromValues(0, 0, 0, 1);
 	fogParams = vec4.fromValues(8.0, 11.5, 1, 0);
 
-	private lighting: system.Lighting;
+	private lighting: material.TiledLight;
 
-	useLightingSystem(lighting: system.Lighting) {
+	useLightingSystem(lighting: material.TiledLight) {
 		this.lighting = lighting;
 	}
 
