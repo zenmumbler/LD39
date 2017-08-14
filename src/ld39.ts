@@ -437,7 +437,7 @@ class LD39Scene implements sd.SceneDelegate {
 		const now = sd.App.globalTime;
 
 		this.update(timeStep);
-		scene.physics.update(timeStep);
+		scene.physicsWorld.update(timeStep, scene.colliders, scene.transforms);
 
 		// flicker lights
 		if (this.mode !== "end") {
