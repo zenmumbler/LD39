@@ -136,6 +136,7 @@ class BasicEffect implements render.Effect {
 
 	makeEffectData(): BasicEffectData {
 		return {
+			__effectID: 0x000BA51C,
 			diffuse: undefined,
 			tint: vec4.one()
 		};

@@ -307,6 +307,7 @@ class LegacyEffect implements render.Effect {
 
 	makeEffectData(): LegacyEffectData {
 		return {
+			__effectID: 0x00073CAC9,
 			diffuse: undefined,
 			tint: vec4.one(),
 			texScaleOffset: vec4.fromValues(1, 1, 0, 0)
