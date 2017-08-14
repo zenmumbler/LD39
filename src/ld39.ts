@@ -151,10 +151,11 @@ class LD39Scene implements sd.SceneDelegate {
 				const vpsSize = radio.dataset.vps || "hdready";
 				const holder = dom.$1(".stageholder");
 				holder.className = `stageholder ${vpsSize}`;
-				const canvas = (this.scene.rd as render.gl1.GL1RenderDevice).gl.canvas;
-				canvas.width = ({ small: 960, hdready: 1280, fullhd: 1920 } as any)[vpsSize];
-				canvas.height = ({ small: 540, hdready: 720, fullhd: 1080 } as any)[vpsSize];
-				this.scene.camera.resizeViewport(canvas.width, canvas.height);
+
+				const width = ({ small: 960, hdready: 1280, fullhd: 1920 } as any)[vpsSize];
+				const height = ({ small: 540, hdready: 720, fullhd: 1080 } as any)[vpsSize];
+				this.scene.rw.resizeDrawableTo(width, height);
+				this.scene.camera.resizeViewport(width, height);
 			}
 		});
 
@@ -169,16 +170,16 @@ class LD39Scene implements sd.SceneDelegate {
 
 		const fsch = () => {
 			const canvas = dom.$1(".stageholder");
-			const rd = this.scene.rd;
+			const rw = this.scene.rw;
 			if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement) {
-				const scaleFactor = Math.min(screen.width / rd.drawableWidth, screen.height / rd.drawableHeight);
+				const scaleFactor = Math.min(screen.width / rw.drawableWidth, screen.height / rw.drawableHeight);
 
 				// Firefox needs the pointerlock request after fullscreen activates
 				canvas.requestPointerLock();
 
 				if (document.mozFullScreenElement) {
-					const hOffset = Math.round((screen.width - rd.drawableWidth) / (2 * scaleFactor)) + "px";
-					const vOffset = Math.round((screen.height - rd.drawableHeight) / (2 * scaleFactor)) + "px";
+					const hOffset = Math.round((screen.width - rw.drawableWidth) / (2 * scaleFactor)) + "px";
+					const vOffset = Math.round((screen.height - rw.drawableHeight) / (2 * scaleFactor)) + "px";
 
 					dom.$(".stageholder > *").forEach((e: HTMLElement) => {
 						e.style.transform = `scale(${scaleFactor}) translate(${hOffset}, ${vOffset})`;
@@ -207,8 +208,8 @@ class LD39Scene implements sd.SceneDelegate {
 		const scene = this.scene;
 		this.scene.camera.perspective(65, .1, 20);
 
-		this.legacy = this.scene.rd.effectByName("legacy")!;
-		(this.legacy as LegacyEffect).useLightingSystem(scene.lighting);
+		this.legacy = this.scene.rw.rd.effectByName("legacy")!;
+		(this.legacy as LegacyEffect).useLightingSystem(this.scene.rw.lighting);
 
 		this.boxED = this.legacy.makeEffectData();
 		this.legacy.setTexture(this.boxED, "diffuse", this.boxTex);
@@ -541,7 +542,7 @@ class LD39Scene implements sd.SceneDelegate {
 
 
 		// creating render commands
-		const cmds = scene.lighting.prepareLightsForRender(
+		const cmds = scene.rw.lighting.prepareLightsForRender(
 			scene.lights,
 			scene.lights.allEnabled(),
 			scene.transforms,
@@ -549,7 +550,7 @@ class LD39Scene implements sd.SceneDelegate {
 			scene.camera.viewport
 		);
 
-		if (! (this.scene.lighting.lutTextureSampler && this.scene.lighting.lutTextureSampler.tex && this.scene.lighting.lutTextureSampler.tex.renderResourceHandle)) {
+		if (! (this.scene.rw.lighting.lutTextureSampler && this.scene.rw.lighting.lutTextureSampler.tex && this.scene.rw.lighting.lutTextureSampler.tex.renderResourceHandle)) {
 			return cmds;
 		}
 
@@ -576,7 +577,7 @@ sd.App.messages.listenOnce("AppStart", undefined, () => {
 
 	rw.rd.registerEffect(new LegacyEffect());
 
-	const scene = new sd.Scene(rw.rd, adev, {
+	const scene = new sd.Scene(rw, adev, {
 		assetURLMapping: {},
 		physicsConfig: physics.makeDefaultPhysicsConfig(),
 		delegate: new LD39Scene()
