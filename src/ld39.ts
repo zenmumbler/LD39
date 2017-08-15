@@ -541,32 +541,6 @@ class LD39Scene implements sd.SceneDelegate {
 			}
 		}
 
-
-		// creating render commands
-		const cmds = scene.rw.lighting.prepareLightsForRender(
-			scene.lights,
-			scene.lights.allEnabled(),
-			scene.transforms,
-			scene.camera,
-			scene.camera.viewport
-		);
-
-		if (! (this.scene.rw.lighting.lutTextureSampler && this.scene.rw.lighting.lutTextureSampler.tex && this.scene.rw.lighting.lutTextureSampler.tex.renderResourceHandle)) {
-			return cmds;
-		}
-
-		cmds.setFrameBuffer(null, render.ClearMask.ColourDepth, { colour: [0.0, 0.0, 0.0, 1.0] });
-		cmds.setViewport(scene.camera.viewport);
-		for (let bmx = 0; bmx < this.baseMesh.subMeshes.length; ++bmx) {
-			const bsm = this.baseMesh.subMeshes[bmx];
-			const ed = this.baseEDs[bmx];
-			this.legacy.addRenderJobs(ed, this.scene.camera, scene.transforms.worldMatrix(this.baseObject.transform), this.baseMesh, bsm, cmds);
-		}
-		for (const box of this.boxes) {
-			this.legacy.addRenderJobs(box.effectData!, this.scene.camera, scene.transforms.worldMatrix(box.transform), this.boxMesh, this.boxMesh.subMeshes[0], cmds);
-		}
-
-		return cmds;
 	}
 }
 
