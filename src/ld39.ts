@@ -10,7 +10,7 @@ interface GameObject {
 	transform: entity.TransformInstance;
 	collider?: entity.ColliderInstance;
 	mesh?: entity.MeshInstance;
-	effectData?: render.EffectData;
+	renderer?: entity.MeshRendererInstance;
 	light?: entity.LightInstance;
 }
 
@@ -226,7 +226,7 @@ class LD39Scene implements sd.SceneDelegate {
 		this.legacy.setTexture(this.doorED, "diffuse", this.doorTex);
 		this.baseEDs = [this.wallED, this.ceilED, this.doorED, this.floorED];
 
-		const makeGO = (mass: number, position: sd.ConstFloat3, meshData: meshdata.MeshData, ed: render.EffectData, shape: physics.PhysicsShape, friction = 0.6): GameObject => {
+		const makeGO = (mass: number, position: sd.ConstFloat3, meshData: meshdata.MeshData, ed: render.EffectData[], shape: physics.PhysicsShape, friction = 0.6): GameObject => {
 			const entity = scene.entities.create();
 			const transform = scene.transforms.create(entity, { position });
 			const collider = scene.colliders.create(entity, { rigidBody: {
@@ -236,8 +236,10 @@ class LD39Scene implements sd.SceneDelegate {
 			}});
 			const mesh = scene.meshes.create(meshData);
 			scene.meshes.linkToEntity(mesh, entity);
-			const effectData = ed;
-			return { entity, transform, collider, mesh, effectData };
+			const renderer = scene.renderers.create(entity, {
+				materials: ed
+			});
+			return { entity, transform, collider, mesh, renderer };
 		};
 
 		const makeLight = (position: sd.ConstFloat3, lightDesc: entity.Light): GameObject => {
@@ -308,17 +310,17 @@ class LD39Scene implements sd.SceneDelegate {
 		makeCeilingLight(-41, 50); // east final corridor
 		makeCeilingLight(-57, 50, [0, 1, 0]);
 
-		this.baseObject = makeGO(0, [0, 0, 0], this.baseMesh, this.wallED, this.baseShape, .9);
+		this.baseObject = makeGO(0, [0, 0, 0], this.baseMesh, this.baseEDs, this.baseShape, .9);
 
-		this.boxes.push(makeGO(1, [-1, .3, 7], this.boxMesh, this.boxED, this.boxShape));
+		this.boxes.push(makeGO(1, [-1, .3, 7], this.boxMesh, [this.boxED], this.boxShape));
 
-		this.boxes.push(makeGO(1, [-25, .3, 50.3], this.boxMesh, this.boxED, this.boxShape));
-		this.boxes.push(makeGO(1, [-25.1, .8, 50], this.boxMesh, this.boxED, this.boxShape));
-		this.boxes.push(makeGO(1, [-24.9, .3, 49.7], this.boxMesh, this.boxED, this.boxShape));
+		this.boxes.push(makeGO(1, [-25, .3, 50.3], this.boxMesh, [this.boxED], this.boxShape));
+		this.boxes.push(makeGO(1, [-25.1, .8, 50], this.boxMesh, [this.boxED], this.boxShape));
+		this.boxes.push(makeGO(1, [-24.9, .3, 49.7], this.boxMesh, [this.boxED], this.boxShape));
 		
-		this.boxes.push(makeGO(1, [24.7, .3, 54], this.boxMesh, this.boxED, this.boxShape));
-		this.boxes.push(makeGO(1, [23, .3, 55], this.boxMesh, this.boxED, this.boxShape));
-		this.boxes.push(makeGO(1, [23.4, .3, 54.1], this.boxMesh, this.boxED, this.boxShape));
+		this.boxes.push(makeGO(1, [24.7, .3, 54], this.boxMesh, [this.boxED], this.boxShape));
+		this.boxes.push(makeGO(1, [23, .3, 55], this.boxMesh, [this.boxED], this.boxShape));
+		this.boxes.push(makeGO(1, [23.4, .3, 54.1], this.boxMesh, [this.boxED], this.boxShape));
 
 		this.playerCtl = new PlayerController(dom.$1("canvas"), [0, 1.1, 3], scene, this.sound_);
 		this.sound_.setAssets(this.soundAssets);
