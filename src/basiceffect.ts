@@ -85,6 +85,7 @@ interface BasicEffectData extends render.EffectData {
 
 class BasicEffect implements render.Effect {
 	readonly name = "basic";
+	readonly id = 0x000BA51C;
 
 	private rd_: render.gl1.GL1RenderDevice;
 	private sampler_: render.Sampler;
@@ -136,7 +137,7 @@ class BasicEffect implements render.Effect {
 
 	makeEffectData(): BasicEffectData {
 		return {
-			__effectID: 0x000BA51C,
+			__effectID: this.id,
 			diffuse: undefined,
 			tint: vec4.one()
 		};

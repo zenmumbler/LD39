@@ -238,6 +238,7 @@ interface LegacyEffectData extends render.EffectData {
 
 class LegacyEffect implements render.Effect {
 	readonly name = "legacy";
+	readonly id = 0x00073CAC9;
 
 	private rd_: render.gl1.GL1RenderDevice;
 	private lighting_: render.TiledLight;
@@ -307,7 +308,7 @@ class LegacyEffect implements render.Effect {
 
 	makeEffectData(): LegacyEffectData {
 		return {
-			__effectID: 0x00073CAC9,
+			__effectID: this.id,
 			diffuse: undefined,
 			tint: vec4.one(),
 			texScaleOffset: vec4.fromValues(1, 1, 0, 0)
