@@ -333,15 +333,6 @@ class LD39Scene implements sd.SceneDelegate {
 		return Promise.resolve();
 	}
 
-	update(timeStep: number) {
-		if (this.mode === "play") {
-			this.playerCtl.step(timeStep);
-		}
-		const finalEye = this.playerCtl.view.pos;
-		vec2.add(finalEye, finalEye, this.playerCtl.shakeOffset);
-		this.scene.camera.lookAt(finalEye, this.playerCtl.view.focusPos, this.playerCtl.view.up);
-	}
-
 	flicker = false;
 	flickerEnd = 3.0;
 	nextRumble = 8.0;
@@ -434,12 +425,9 @@ class LD39Scene implements sd.SceneDelegate {
 		this.playStart = now;
 	}
 
-	frame(timeStep: number) {
+	update(timeStep: number) {
 		const scene = this.scene;
 		const now = sd.App.globalTime;
-
-		this.update(timeStep);
-		scene.physicsWorld.update(timeStep, scene.colliders, scene.transforms);
 
 		// flicker lights
 		if (this.mode !== "end") {
@@ -464,9 +452,13 @@ class LD39Scene implements sd.SceneDelegate {
 		// messages
 		if ((this.mode !== "end") && (now > this.hideMessage)) {
 			dom.hide("p.message");
+			this.hideMessage = 9e10;
 		}
 
 		if (this.mode === "play") {
+			// allow movement
+			this.playerCtl.step(timeStep);			
+
 			// timer
 			const timeLeft = Math.max(0, this.totalTime - (now - this.playStart));
 			const minutes = Math.floor(timeLeft / 60);
@@ -541,6 +533,10 @@ class LD39Scene implements sd.SceneDelegate {
 			}
 		}
 
+		// camera positioning, incl. earthquake effect
+		const finalEye = this.playerCtl.view.pos;
+		vec2.add(finalEye, finalEye, this.playerCtl.shakeOffset);
+		this.scene.camera.lookAt(finalEye, this.playerCtl.view.focusPos, this.playerCtl.view.up);
 	}
 }
 
