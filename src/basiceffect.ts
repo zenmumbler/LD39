@@ -7,7 +7,7 @@ namespace sd.render.gl1 {
 	import AttrRole = meshdata.VertexAttributeRole;
 	import SVT = ShaderValueType;
 
-	function basicVertexFunction(): GL1VertexFunction {
+	function basicVertexFunction(): VertexFunction {
 		return {
 			in: [
 				{ name: "vertexPos_model", type: SVT.Float3, role: AttrRole.Position, index: 0 },
@@ -38,7 +38,7 @@ namespace sd.render.gl1 {
 		};
 	}
 
-	function basicFragmentFunction(): GL1FragmentFunction {
+	function basicFragmentFunction(): FragmentFunction {
 		return {
 			in: [
 				// { name: "vertexPos_world", type: SVT.Float4 },
@@ -71,6 +71,7 @@ namespace sd.render.gl1 {
 		return {
 			renderResourceType: ResourceType.Shader,
 			renderResourceHandle: 0,
+			defines: [],
 			vertexFunction,
 			fragmentFunction
 		};	

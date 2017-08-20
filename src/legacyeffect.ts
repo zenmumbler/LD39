@@ -7,7 +7,7 @@ namespace sd.render.gl1 {
 	import AttrRole = meshdata.VertexAttributeRole;
 	import SVT = ShaderValueType;
 
-	function legacyVertexFunction(): GL1VertexFunction {
+	function legacyVertexFunction(): VertexFunction {
 		return {
 			in: [
 				{ name: "vertexPos_model", type: SVT.Float3, role: AttrRole.Position, index: 0 },
@@ -40,7 +40,7 @@ namespace sd.render.gl1 {
 		};
 	}
 
-	function legacyFragmentFunction(noSRGB: boolean): GL1FragmentFunction {
+	function legacyFragmentFunction(noSRGB: boolean): FragmentFunction {
 		const sRGBCorrect = noSRGB ? `texColour = pow(texColour, vec3(2.2));` : "";
 		return {
 			in: [
@@ -223,6 +223,7 @@ vec3 getLightContribution(LightEntry light, vec3 normal_cam) {
 		return {
 			renderResourceType: ResourceType.Shader,
 			renderResourceHandle: 0,
+			defines: [],
 			vertexFunction,
 			fragmentFunction
 		};	

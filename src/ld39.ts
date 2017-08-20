@@ -71,7 +71,7 @@ class LD39Scene implements sd.SceneDelegate {
 			image.loadImage(io.localURL("data/metalplate.jpg")).then(img => (progress(), img)),
 			image.loadImage(io.localURL("data/crate.jpg")).then(img => (progress(), img)),
 
-			sd.asset.loadOBJFile(io.localURL("data/base.obj")).then(img => (progress(), img)),
+			asset.loadOBJFile(io.localURL("data/base.obj")).then(img => (progress(), img)),
 
 			loadSoundFile(this.scene.ad, "data/sound/Bart-Roijmans-Bigboss-looped.mp3").then(buf => { progress(); this.soundAssets.music = buf; }),
 			loadSoundFile(this.scene.ad, "data/sound/34253__ddohler__hard-walking_0.mp3").then(buf => { progress(); this.soundAssets.steps[0] = buf; }),
