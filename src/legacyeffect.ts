@@ -3,6 +3,161 @@
 
 /// <reference path="imports.ts" />
 
+namespace sd.render.shader {
+	import SVT = ShaderValueType;
+	
+	gl1Modules.diffuseLight = {
+		name: "diffuseLight",
+		requires: [
+			"SurfaceInfo",
+			"MaterialInfo",
+		],
+		provides: [
+			"CoreLight"
+		],
+		code: `
+		vec3 calcLightShared(vec3 lightColour, float diffuseStrength, vec3 lightDirection_cam, SurfaceInfo si, MaterialInfo mi) {
+			float NdL = max(0.0, dot(si.N, -lightDirection_cam));
+			vec3 diffuseContrib = lightColour * diffuseStrength * NdL;
+		
+			// vec3 specularContrib = vec3(0.0);
+			// vec3 viewVec = normalize(-vertexPos_cam);
+			// vec3 reflectVec = reflect(lightDirection, si.N);
+			// float specularStrength = dot(viewVec, reflectVec);
+			// if (specularStrength > 0.0) {
+			// if (feat & Features.SpecularMap) {
+			// 		vec3 specularColour = texture2D(specularSampler, vertexUV_intp).xyz;
+			// }
+			// else {
+			// 		vec3 specularColour = lightColour;
+			// }
+			// 	specularStrength = pow(specularStrength, specular[SPEC_EXPONENT]) * diffuseStrength; // FIXME: not too sure about this (* diffuseStrength)
+			// 	specularContrib = specularColour * specularStrength * specular[SPEC_INTENSITY];
+			// }
+			// return diffuseContrib + specularContrib;
+
+			return diffuseContrib;
+		}
+		`
+	};
+
+	gl1Modules.simpleSurfaceInfo = {
+		name: "simpleSurfaceInfo",
+		provides: [
+			"SurfaceInfo"
+		],
+		structs: [{
+			name: "SurfaceInfo",
+			code: `
+			struct SurfaceInfo {
+				vec3 V;  // vertex dir (cam)
+				vec3 N;  // surface normal (cam)
+			#ifdef HAS_BASE_UV
+				vec2 UV; // (adjusted) main UV
+			#endif
+			};
+			`
+		}],
+		constants: [
+			{ name: "normalMatrix", type: SVT.Float3x3 }
+		],
+		code: `
+		SurfaceInfo calcSurfaceInfo() {
+			SurfaceInfo si;
+			si.V = normalize(-vertexPos_cam);
+			si.N = normalize(vertexNormal_cam);
+			#ifdef HAS_BASE_UV
+				si.UV = vertexUV_intp;
+			#endif
+			return si;
+		}
+		`
+	};
+
+	gl1Modules.simpleMaterialInfo = {
+		name: "simpleMaterialInfo",
+		requires: [
+			"ConvertSRGB",			
+		],
+		provides: [
+			"MaterialInfo"
+		],
+		constants: [
+			{ name: "baseColour", type: SVT.Float4 },
+		],
+		samplers: [
+			{ name: "diffuseSampler", type: TextureClass.Plain, index: 0 },
+		],
+		structs: [
+			{
+				name: "MaterialInfo",
+				code: `
+				struct MaterialInfo {
+					vec4 albedo;
+				};
+				`
+			}
+		],
+		code: `
+		MaterialInfo getMaterialInfo(vec2 materialUV) {
+			MaterialInfo mi;
+			vec3 colour = srgbToLinear(baseColour.rgb);
+			vec3 mapColour = texture2D(diffuseSampler, materialUV).rgb;
+			#ifdef NO_SRGB_TEXTURES
+				mapColour = srgbToLinear(mapColour);
+			#endif
+			colour *= mapColour;
+			mi.albedo = vec4(colour, 1.0);
+			return mi;
+		}
+		`
+	};
+
+	gl1Modules.xxxSurfaceInfo = {
+		name: "xxxSurfaceInfo",
+		provides: ["SurfaceInfo"],
+		samplers: [
+			{ name: "normalHeightMap", type: TextureClass.Plain, index: 3, ifExpr: "defined(NORMAL_MAP) || defined(HEIGHT_MAP)" }
+		],
+		code: `
+		SurfaceInfo calcSurfaceInfo() {
+			SurfaceInfo si;
+			si.V = normalize(-vertexPos_cam);
+			si.N = normalize(vertexNormal_cam);
+			#if defined(HEIGHT_MAP) || defined(NORMAL_MAP)
+				mat3 TBN = cotangentFrame(si.N, vertexPos_cam, vertexUV_intp);
+			#endif
+			#ifdef HEIGHT_MAP
+				vec3 eyeTan = normalize(inverse(TBN) * si.V);
+
+				// basic parallax
+				// float finalH = texture2D(normalHeightMap, vertexUV_intp).a;
+				// finalH = finalH * 0.04 - 0.02;
+				// si.UV = vertexUV_intp + (eyeTan.xy * h);
+
+				// parallax occlusion
+				float finalH = 0.0;
+				si.UV = parallaxMapping(eyeTan, vertexUV_intp, finalH);
+			#else
+				#ifdef HAS_BASE_UV
+					si.UV = vertexUV_intp;
+				#endif
+			#endif
+			#ifdef NORMAL_MAP
+				vec3 map = texture2D(normalHeightMap, si.UV).xyz * 2.0 - 1.0;
+				si.N = normalize(TBN * map);
+			#endif
+			si.NdV = max(0.001, dot(si.N, si.V));
+			si.transNormalMatrix = transpose(normalMatrix);
+			si.reflectedV = si.transNormalMatrix * reflect(-si.V, si.N);
+			return si;
+		}
+		`
+	};
+
+
+} // ns sd.render.shader
+
 namespace sd.render.gl1 {
 	import AttrRole = meshdata.VertexAttributeRole;
 	import SVT = ShaderValueType;
@@ -40,8 +195,7 @@ namespace sd.render.gl1 {
 		};
 	}
 
-	function legacyFragmentFunction(noSRGB: boolean): FragmentFunction {
-		const sRGBCorrect = noSRGB ? `texColour = pow(texColour, vec3(2.2));` : "";
+	function legacyFragmentFunction(): FragmentFunction {
 		return {
 			in: [
 				{ name: "vertexPos_world", type: SVT.Float4 },
@@ -51,17 +205,18 @@ namespace sd.render.gl1 {
 			],
 			outCount: 1,
 
-			samplers: [
-				{ name: "diffuseSampler", type: render.TextureClass.Plain, index: 0 },
-				// { name: "normalSampler", type: render.TextureClass.Plain, index: 1 },
-				{ name: "lightLUTSampler", type: render.TextureClass.Plain, index: 1 }
+			modules: [
+				"lightContrib",
+				"tiledLight",
+				"basicSRGB",
+				"simpleMaterialInfo",
+				"simpleSurfaceInfo",
+				"diffuseLight",
 			],
 
 			constants: [
-				{ name: "mainColour", type: SVT.Float4 },
 				{ name: "fogColour", type: SVT.Float4 },
 				{ name: "fogParams", type: SVT.Float4 },
-				{ name: "lightLUTParam", type: SVT.Float2 }
 			],
 
 			constValues: [
@@ -70,126 +225,11 @@ namespace sd.render.gl1 {
 				{ name: "FOGPARAM_DENSITY", type: SVT.Int, expr: "2" },
 			],
 
-			code: `
-struct LightEntry {
-	vec4 colourAndType;
-	vec4 positionCamAndIntensity;
-	vec4 positionWorldAndRange;
-	vec4 directionAndCutoff;
-	vec4 shadowStrengthBias;
-};
-
-LightEntry getLightEntry(float lightIx) {
-	float row = (floor(lightIx / 64.0) + 0.5) / 256.0;
-	float col = (mod(lightIx, 64.0) * 5.0) + 0.5;
-	LightEntry le;
-	le.colourAndType = texture2D(lightLUTSampler, vec2(col / 320.0, row));
-	le.positionCamAndIntensity = texture2D(lightLUTSampler, vec2((col + 1.0) / 320.0, row));
-	le.positionWorldAndRange = texture2D(lightLUTSampler, vec2((col + 2.0) / 320.0, row));
-	le.directionAndCutoff = texture2D(lightLUTSampler, vec2((col + 3.0) / 320.0, row));
-	le.shadowStrengthBias = texture2D(lightLUTSampler, vec2((col + 4.0) / 320.0, row));
-	return le;
-}
-
-float getLightIndex(float listIndex) {
-	float liRow = (floor(listIndex / 1280.0) + 128.0 + 0.5) / 256.0;
-	float rowElementIndex = mod(listIndex, 1280.0);
-	float liCol = (floor(rowElementIndex / 4.0) + 0.5) / 320.0;
-	float element = floor(mod(rowElementIndex, 4.0));
-	vec4 packedIndices = texture2D(lightLUTSampler, vec2(liCol, liRow));
-	// gles2: only constant index accesses allowed
-	if (element < 1.0) return packedIndices[0];
-	if (element < 2.0) return packedIndices[1];
-	if (element < 3.0) return packedIndices[2];
-	return packedIndices[3];
-}
-
-vec2 getLightGridCell(vec2 fragCoord) {
-	vec2 lightGridPos = vec2(floor(fragCoord.x / 32.0), floor(fragCoord.y / 32.0));
-	float lightGridIndex = (lightGridPos.y * lightLUTParam.x) + lightGridPos.x;
-
-	float lgRow = (floor(lightGridIndex / 640.0) + 128.0 + 120.0 + 0.5) / 256.0;
-	float rowPairIndex = mod(lightGridIndex, 640.0);
-	float lgCol = (floor(rowPairIndex / 2.0) + 0.5) / 320.0;
-	float pair = floor(mod(rowPairIndex, 2.0));
-	// gles2: only constant index accesses allowed
-	vec4 cellPair = texture2D(lightLUTSampler, vec2(lgCol, lgRow));
-	if (pair < 1.0) return cellPair.xy;
-	return cellPair.zw;
-}
-
-vec3 calcLightShared(vec3 lightColour, float intensity, float diffuseStrength, vec3 lightDirection, vec3 normal_cam) {
-	float NdL = max(0.0, dot(normal_cam, -lightDirection));
-	vec3 diffuseContrib = lightColour * diffuseStrength * NdL * intensity;
-
-	// vec3 specularContrib = vec3(0.0);
-	// vec3 viewVec = normalize(-vertexPos_cam);
-	// vec3 reflectVec = reflect(lightDirection, normal_cam);
-	// float specularStrength = dot(viewVec, reflectVec);
-	// if (specularStrength > 0.0) {
-	// if (feat & Features.SpecularMap) {
-	// 		vec3 specularColour = texture2D(specularSampler, vertexUV_intp).xyz;
-	// }
-	// else {
-	// 		vec3 specularColour = lightColour;
-	// }
-	// 	specularStrength = pow(specularStrength, specular[SPEC_EXPONENT]) * diffuseStrength; // FIXME: not too sure about this (* diffuseStrength)
-	// 	specularContrib = specularColour * specularStrength * specular[SPEC_INTENSITY];
-	// }
-	// return diffuseContrib + specularContrib;
-	return diffuseContrib;
-}
-
-vec3 calcPointLight(vec3 lightColour, float intensity, float range, vec3 lightPos_cam, vec3 lightPos_world, vec3 normal_cam) {
-	float distance = length(vertexPos_world.xyz - lightPos_world); // use world positions for distance as cam will warp coords
-	vec3 lightDirection_cam = normalize(vertexPos_cam - lightPos_cam);
-	float attenuation = clamp(1.0 - distance / range, 0.0, 1.0);
-	attenuation *= attenuation;
-	return calcLightShared(lightColour, intensity, attenuation, lightDirection_cam, normal_cam);
-}
-
-vec3 calcSpotLight(vec3 lightColour, float intensity, float range, float cutoff, vec3 lightPos_cam, vec3 lightPos_world, vec3 lightDirection, vec3 normal_cam) {
-	vec3 lightToPoint = normalize(vertexPos_cam - lightPos_cam);
-	float spotCosAngle = dot(lightToPoint, lightDirection);
-	if (spotCosAngle > cutoff) {
-		vec3 light = calcPointLight(lightColour, intensity, range, lightPos_cam, lightPos_world, normal_cam);
-		return light * smoothstep(cutoff, cutoff + 0.006, spotCosAngle);
-	}
-	return vec3(0.0);
-}
-
-vec3 getLightContribution(LightEntry light, vec3 normal_cam) {
-	vec3 colour = light.colourAndType.xyz;
-	float type = light.colourAndType.w;
-	vec3 lightPos_cam = light.positionCamAndIntensity.xyz;
-	float intensity = light.positionCamAndIntensity.w;
-
-	if (type == ${entity.LightType.Directional}.0) {
-		return calcLightShared(colour, intensity, 1.0, light.directionAndCutoff.xyz, normal_cam);
-	}
-
-	vec3 lightPos_world = light.positionWorldAndRange.xyz;
-	float range = light.positionWorldAndRange.w;
-	if (type == ${entity.LightType.Point}.0) {
-		return calcPointLight(colour, intensity, range, lightPos_cam, lightPos_world, normal_cam);
-	}
-
-	float cutoff = light.directionAndCutoff.w;
-	if (type == ${entity.LightType.Spot}.0) {
-		return calcSpotLight(colour, intensity, range, cutoff, lightPos_cam, lightPos_world, light.directionAndCutoff.xyz, normal_cam);
-	}
-
-	return vec3(0.0); // this would be bad
-}
-			`,
-
 			main: `
-				vec3 texColour = texture2D(diffuseSampler, vertexUV_intp).rgb;
-				${sRGBCorrect}
-				vec3 matColour = mainColour.rgb * texColour;
-				vec3 normal_cam = normalize(vertexNormal_cam);
+				MaterialInfo mi = getMaterialInfo(vertexUV_intp);
+				SurfaceInfo si = calcSurfaceInfo();
 
-				vec3 totalLight = vec3(0.015, 0.01, 0.02); // vec3(0.0);
+				vec3 totalLight = vec3(0.015, 0.01, 0.02);
 
 				vec2 fragCoord = vec2(gl_FragCoord.x, lightLUTParam.y - gl_FragCoord.y);
 				vec2 lightOffsetCount = getLightGridCell(fragCoord);
@@ -203,12 +243,12 @@ vec3 getLightContribution(LightEntry light, vec3 normal_cam) {
 					LightEntry lightData = getLightEntry(lightIx);
 					if (lightData.colourAndType.w <= 0.0) break;
 
-					totalLight += getLightContribution(lightData, normal_cam);
+					totalLight += getLightContribution(lightData, si, mi);
 				}
 
 				float fogDensity = clamp((length(vertexPos_cam) - fogParams[FOGPARAM_START]) / fogParams[FOGPARAM_DEPTH], 0.0, fogParams[FOGPARAM_DENSITY]);
-				totalLight = mix(totalLight * matColour, fogColour.rgb, fogDensity);
-				// totalLight = totalLight * matColour;
+				totalLight = mix(totalLight * mi.albedo.rgb, fogColour.rgb, fogDensity);
+				// totalLight = totalLight * mi.albedo.rgb;
 
 				gl_FragColor = vec4(pow(totalLight, vec3(1.0 / 2.2)), 1.0);
 				// gl_FragColor = vec4(totalLight, 1.0);
@@ -218,12 +258,15 @@ vec3 getLightContribution(LightEntry light, vec3 normal_cam) {
 
 	export function makeLegacyShader(rd: GL1RenderDevice): Shader {
 		const vertexFunction = legacyVertexFunction();
-		const fragmentFunction = legacyFragmentFunction(rd.extSRGB === undefined);
+		const fragmentFunction = legacyFragmentFunction();
 
 		return {
 			renderResourceType: ResourceType.Shader,
 			renderResourceHandle: 0,
-			defines: [],
+			defines: [
+				{ name: "NO_SRGB_TEXTURES", value: +(rd.extSRGB === undefined) },
+				{ name: "HAS_BASE_UV", value: 1 }
+			],
 			vertexFunction,
 			fragmentFunction
 		};	
@@ -280,10 +323,20 @@ class LegacyEffect implements render.Effect {
 			primGroup,
 			textures: [
 				(evData as LegacyEffectData).diffuse,
+				undefined,
+				undefined,
+				undefined,
+				undefined,
+				undefined,
 				lightingSampler.tex
 			],
 			samplers: [
 				this.sampler_,
+				undefined,
+				undefined,
+				undefined,
+				undefined,
+				undefined,
 				lightingSampler.samp
 			],
 			constants: [
@@ -295,7 +348,7 @@ class LegacyEffect implements render.Effect {
 				{ name: "fogColour", value: this.fogColour },
 				{ name: "fogParams", value: this.fogParams },
 				{ name: "lightLUTParam", value: this.lighting_.lutParam },
-				{ name: "mainColour", value: (evData as LegacyEffectData).tint },
+				{ name: "baseColour", value: (evData as LegacyEffectData).tint },
 				{ name: "texScaleOffset", value: (evData as LegacyEffectData).texScaleOffset }
 			],
 			pipeline: {
