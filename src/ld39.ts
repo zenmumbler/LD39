@@ -18,7 +18,6 @@ class LD39Scene implements sd.SceneDelegate {
 	scene: sd.Scene;
 	legacy: render.Effect;
 	wallTex: render.Texture;
-	ceilTex: render.Texture;
 	floorTex: render.Texture;
 	doorTex: render.Texture;
 	doorNormalTex: render.Texture;
@@ -56,7 +55,7 @@ class LD39Scene implements sd.SceneDelegate {
 		this.sound_ = new Sound(this.scene.ad);
 		this.soundAssets = { steps: [] as AudioBuffer[] } as SoundAssets;
 
-		const totalAssets = 12;
+		const totalAssets = 11;
 		let loadedAssets = 0;
 
 		const progress = () => {
@@ -69,7 +68,6 @@ class LD39Scene implements sd.SceneDelegate {
 		const linear = image.ColourSpace.Linear;
 		const assets = [
 			image.loadImage(io.localURL("data/TexturesCom_GrayBareConcrete_albedo_S.jpg"), sRGB).then(img => (progress(), img)),
-			image.loadImage(io.localURL("data/TexturesCom_BrownConcrete_albedo_S.jpg"), sRGB).then(img => (progress(), img)),
 			image.loadImage(io.localURL("data/ceil-a.jpg"), sRGB).then(img => (progress(), img)),
 			image.loadImage(io.localURL("data/metalplate.jpg"), sRGB).then(img => (progress(), img)),
 			image.loadImage(io.localURL("data/metalplate-n.png"), linear).then(img => (progress(), img)),
@@ -86,9 +84,8 @@ class LD39Scene implements sd.SceneDelegate {
 
 
 		return Promise.all(assets as Promise<any>[]).then(
-			([wallTex, ceilTex, floorTex, doorTex, doorNormalTex, boxTex, baseGroup]) => {
+			([wallTex, floorTex, doorTex, doorNormalTex, boxTex, baseGroup]) => {
 				this.wallTex = render.makeTex2DFromProvider(wallTex as image.PixelDataProvider, render.MipMapMode.Regenerate);
-				this.ceilTex = render.makeTex2DFromProvider(ceilTex as image.PixelDataProvider, render.MipMapMode.Regenerate);
 				this.floorTex = render.makeTex2DFromProvider(floorTex as image.PixelDataProvider, render.MipMapMode.Regenerate);
 				this.doorTex = render.makeTex2DFromProvider(doorTex as image.PixelDataProvider, render.MipMapMode.Regenerate);
 				this.doorNormalTex = render.makeTex2DFromProvider(doorNormalTex as image.PixelDataProvider, render.MipMapMode.Regenerate);
@@ -112,7 +109,6 @@ class LD39Scene implements sd.SceneDelegate {
 
 				const rcb = new render.RenderCommandBuffer();
 				rcb.allocate(this.wallTex);
-				rcb.allocate(this.ceilTex);
 				rcb.allocate(this.floorTex);
 				rcb.allocate(this.doorTex);
 				rcb.allocate(this.doorNormalTex);
