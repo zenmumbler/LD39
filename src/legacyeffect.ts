@@ -30,7 +30,7 @@ namespace sd.render.shader {
 			float specularStrength = dot(viewVec, reflectVec);
 			if (specularStrength > 0.0) {
 			#ifdef SPECULAR_MAP
-				vec3 specularColour = texture2D(specularSampler, vertexUV_intp).rgb;
+				vec3 specularColour = texture2D(specularSampler, si.UV).rgb;
 			#else
 				vec3 specularColour = lightColour;
 			#endif
@@ -51,13 +51,13 @@ namespace sd.render.shader {
 			"NormalMap"
 		],
 		samplers: [
-			{ name: "normalMap", type: TextureClass.Plain, index: 3, ifExpr: "NORMAL_MAP" }
+			{ name: "normalMap", type: TextureClass.Plain, index: 1, ifExpr: "NORMAL_MAP" }
 		],
 		code: `
-		#ifdef NORMALMAP
-			vec3 getMappedNormal(vec2 uv) {
-				return texture2D(normalMap, uv).xyz * 2.0 - 1.0;
-			}
+		#ifdef NORMAL_MAP
+		vec3 getMappedNormal(vec2 uv) {
+			return texture2D(normalMap, uv).xyz * 2.0 - 1.0;
+		}
 		#endif
 		`
 	};
@@ -104,7 +104,8 @@ namespace sd.render.shader {
 			#endif
 			#ifdef NORMAL_MAP
 				vec3 mapNormal = getMappedNormal(si.UV);
-				si.N = normalize(TBN * map);
+				// mapNormal.y = -mapNormal.y;
+				si.N = normalize(TBN * mapNormal);
 			#endif
 			return si;
 		}
@@ -158,7 +159,7 @@ namespace sd.render.gl1 {
 	import AttrRole = meshdata.VertexAttributeRole;
 	import SVT = ShaderValueType;
 
-	function legacyVertexFunction(): VertexFunction {
+	function legacyVertexFunction(_ldata: LegacyEffectData): VertexFunction {
 		return {
 			in: [
 				{ name: "vertexPos_model", type: SVT.Float3, role: AttrRole.Position, index: 0 },
@@ -191,7 +192,7 @@ namespace sd.render.gl1 {
 		};
 	}
 
-	function legacyFragmentFunction(): FragmentFunction {
+	function legacyFragmentFunction(ldata: LegacyEffectData): FragmentFunction {
 		return {
 			in: [
 				{ name: "vertexPos_world", type: SVT.Float4 },
@@ -205,10 +206,10 @@ namespace sd.render.gl1 {
 				"lightContrib",
 				"tiledLight",
 				"basicSRGB",
-				"basicNormalMap",
 				"simpleMaterialInfo",
 				"simpleSurfaceInfo",
 				"diffuseSpecularLight",
+				"basicNormalMap"
 			],
 
 			constants: [
@@ -223,39 +224,39 @@ namespace sd.render.gl1 {
 			],
 
 			main: `
-				MaterialInfo mi = getMaterialInfo(vertexUV_intp);
-				SurfaceInfo si = calcSurfaceInfo();
+			SurfaceInfo si = calcSurfaceInfo();
+			MaterialInfo mi = getMaterialInfo(si.UV);
 
-				vec3 totalLight = vec3(0.015, 0.01, 0.02);
+			vec3 totalLight = vec3(0.015, 0.01, 0.02);
 
-				vec2 fragCoord = vec2(gl_FragCoord.x, lightLUTParam.y - gl_FragCoord.y);
-				vec2 lightOffsetCount = getLightGridCell(fragCoord);
-				int lightListOffset = int(lightOffsetCount.x);
-				int lightListCount = int(lightOffsetCount.y);
+			vec2 fragCoord = vec2(gl_FragCoord.x, lightLUTParam.y - gl_FragCoord.y);
+			vec2 lightOffsetCount = getLightGridCell(fragCoord);
+			int lightListOffset = int(lightOffsetCount.x);
+			int lightListCount = int(lightOffsetCount.y);
 
-				for (int llix = 0; llix < 128; ++llix) {
-					if (llix == lightListCount) break; // hack to overcome gles2 limitation where loops need constant max counters 
+			for (int llix = 0; llix < 128; ++llix) {
+				if (llix == lightListCount) break; // hack to overcome gles2 limitation where loops need constant max counters 
 
-					float lightIx = getLightIndex(float(lightListOffset + llix));
-					LightEntry lightData = getLightEntry(lightIx);
-					if (lightData.colourAndType.w <= 0.0) break;
+				float lightIx = getLightIndex(float(lightListOffset + llix));
+				LightEntry lightData = getLightEntry(lightIx);
+				if (lightData.colourAndType.w <= 0.0) break;
 
-					totalLight += getLightContribution(lightData, si, mi);
-				}
+				totalLight += getLightContribution(lightData, si, mi);
+			}
 
-				float fogDensity = clamp((length(vertexPos_cam) - fogParams[FOGPARAM_START]) / fogParams[FOGPARAM_DEPTH], 0.0, fogParams[FOGPARAM_DENSITY]);
-				totalLight = mix(totalLight * mi.albedo.rgb, fogColour.rgb, fogDensity);
-				// totalLight = totalLight * mi.albedo.rgb;
+			float fogDensity = clamp((length(vertexPos_cam) - fogParams[FOGPARAM_START]) / fogParams[FOGPARAM_DEPTH], 0.0, fogParams[FOGPARAM_DENSITY]);
+			totalLight = mix(totalLight * mi.albedo.rgb, fogColour.rgb, fogDensity);
+			// totalLight = totalLight * mi.albedo.rgb;
 
-				gl_FragColor = vec4(pow(totalLight, vec3(1.0 / 2.2)), 1.0);
-				// gl_FragColor = vec4(totalLight, 1.0);
+			gl_FragColor = vec4(pow(totalLight, vec3(1.0 / 2.2)), 1.0);
+			// gl_FragColor = vec4(totalLight, 1.0);
 			`
 		};
 	}
 
 	export function makeLegacyShader(rd: GL1RenderDevice, ldata: LegacyEffectData): Shader {
-		const vertexFunction = legacyVertexFunction();
-		const fragmentFunction = legacyFragmentFunction();
+		const vertexFunction = legacyVertexFunction(ldata);
+		const fragmentFunction = legacyFragmentFunction(ldata);
 
 		return {
 			renderResourceType: ResourceType.Shader,
@@ -284,6 +285,12 @@ interface LegacyEffectData extends render.EffectData {
 	texScaleOffset: Float32Array;
 }
 
+const LEDID = (ldata: LegacyEffectData) => (
+	(ldata.diffuse ? 1 : 0) << 0 |
+	(ldata.normal ? 1 : 0) << 1 |
+	(ldata.specular ? 1 : 0) << 2
+);
+
 class LegacyEffect implements render.Effect {
 	readonly name = "legacy";
 	readonly id = 0x00073CAC9;
@@ -291,8 +298,7 @@ class LegacyEffect implements render.Effect {
 	private rd_: render.gl1.GL1RenderDevice;
 	private lighting_: render.TiledLight;
 	private sampler_: render.Sampler;
-	private diffShader_: render.Shader | undefined;
-	private diffSpecShader_: render.Shader | undefined;
+	private shaders_ = new Map<number, render.Shader>();
 
 	fogColour = vec4.fromValues(0, 0, 0, 1);
 	fogParams = vec4.fromValues(8.0, 11.5, 1, 0);
@@ -316,16 +322,12 @@ class LegacyEffect implements render.Effect {
 		toBuffer: render.RenderCommandBuffer
 	) {
 		const ldata = evData as LegacyEffectData;
-		let shader = ldata.specular ? this.diffSpecShader_ : this.diffShader_;
+		const ledid = LEDID(ldata);
+		let shader = this.shaders_.get(ledid);
 		if (! shader) {
-			shader = render.gl1.makeLegacyShader(this.rd_, ldata.specular);
+			shader = render.gl1.makeLegacyShader(this.rd_, ldata);
 			toBuffer.allocate(shader);
-			if (ldata.specular) {
-				this.diffSpecShader_ = shader;
-			}
-			else {
-				this.diffShader_ = shader;
-			}
+			this.shaders_.set(ledid, shader);
 		}
 
 		const mv = mat4.multiply(mat4.create(), camera.viewMatrix, modelMatrix);
