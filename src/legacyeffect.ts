@@ -6,11 +6,14 @@
 namespace sd.render.shader {
 	import SVT = ShaderValueType;
 	
-	gl1Modules.diffuseLight = {
-		name: "diffuseLight",
+	gl1Modules.diffuseSpecularLight = {
+		name: "diffuseSpecularLight",
 		requires: [
 			"SurfaceInfo",
 			"MaterialInfo",
+		],
+		samplers: [
+			{ name: "specularSampler", type: TextureClass.Plain, index: 2, ifExpr: "SPECULAR_MAP" }
 		],
 		provides: [
 			"CoreLight"
@@ -20,21 +23,22 @@ namespace sd.render.shader {
 			float NdL = max(0.0, dot(si.N, -lightDirection_cam));
 			vec3 diffuseContrib = lightColour * diffuseStrength * NdL;
 		
-			// vec3 specularContrib = vec3(0.0);
-			// vec3 viewVec = normalize(-vertexPos_cam);
-			// vec3 reflectVec = reflect(lightDirection, si.N);
-			// float specularStrength = dot(viewVec, reflectVec);
-			// if (specularStrength > 0.0) {
-			// if (feat & Features.SpecularMap) {
-			// 		vec3 specularColour = texture2D(specularSampler, vertexUV_intp).xyz;
-			// }
-			// else {
-			// 		vec3 specularColour = lightColour;
-			// }
-			// 	specularStrength = pow(specularStrength, specular[SPEC_EXPONENT]) * diffuseStrength; // FIXME: not too sure about this (* diffuseStrength)
-			// 	specularContrib = specularColour * specularStrength * specular[SPEC_INTENSITY];
-			// }
-			// return diffuseContrib + specularContrib;
+		#ifdef SPECULAR
+			vec3 specularContrib = vec3(0.0);
+			vec3 viewVec = normalize(si.V);
+			vec3 reflectVec = reflect(lightDirection_cam, si.N);
+			float specularStrength = dot(viewVec, reflectVec);
+			if (specularStrength > 0.0) {
+			#ifdef SPECULAR_MAP
+				vec3 specularColour = texture2D(specularSampler, vertexUV_intp).rgb;
+			#else
+				vec3 specularColour = lightColour;
+			#endif
+				specularStrength = pow(specularStrength, 8.0) * diffuseStrength; // FIXME: not too sure about this (* diffuseStrength)
+				specularContrib = specularColour * specularStrength * 3.0;
+				diffuseContrib += specularContrib;
+			}
+		#endif
 
 			return diffuseContrib;
 		}
@@ -211,7 +215,7 @@ namespace sd.render.gl1 {
 				"basicSRGB",
 				"simpleMaterialInfo",
 				"simpleSurfaceInfo",
-				"diffuseLight",
+				"diffuseSpecularLight",
 			],
 
 			constants: [
@@ -256,7 +260,7 @@ namespace sd.render.gl1 {
 		};
 	}
 
-	export function makeLegacyShader(rd: GL1RenderDevice): Shader {
+	export function makeLegacyShader(rd: GL1RenderDevice, ldata: LegacyEffectData): Shader {
 		const vertexFunction = legacyVertexFunction();
 		const fragmentFunction = legacyFragmentFunction();
 
@@ -265,7 +269,10 @@ namespace sd.render.gl1 {
 			renderResourceHandle: 0,
 			defines: [
 				{ name: "NO_SRGB_TEXTURES", value: +(rd.extSRGB === undefined) },
-				{ name: "HAS_BASE_UV", value: 1 }
+				{ name: "HAS_BASE_UV", value: 1 },
+				{ name: "ALBEDO_MAP", value: ldata.diffuse ? 1 : 0 },
+				{ name: "SPECULAR", value: +(ldata.specular) },
+				{ name: "SPECULAR_MAP", value: 0 },
 			],
 			vertexFunction,
 			fragmentFunction
@@ -276,6 +283,7 @@ namespace sd.render.gl1 {
 
 interface LegacyEffectData extends render.EffectData {
 	diffuse: render.Texture | undefined;
+	specular: boolean;
 	tint: Float32Array;
 	texScaleOffset: Float32Array;
 }
@@ -287,7 +295,8 @@ class LegacyEffect implements render.Effect {
 	private rd_: render.gl1.GL1RenderDevice;
 	private lighting_: render.TiledLight;
 	private sampler_: render.Sampler;
-	private shader_: render.Shader;
+	private diffShader_: render.Shader | undefined;
+	private diffSpecShader_: render.Shader | undefined;
 
 	fogColour = vec4.fromValues(0, 0, 0, 1);
 	fogParams = vec4.fromValues(8.0, 11.5, 1, 0);
@@ -296,11 +305,9 @@ class LegacyEffect implements render.Effect {
 		this.rd_ = rw.rd as render.gl1.GL1RenderDevice;
 		this.lighting_ = rw.lighting;
 		this.sampler_ = render.makeSampler();
-		this.shader_ = render.gl1.makeLegacyShader(this.rd_);
 
 		const rcmd = new render.RenderCommandBuffer();
 		rcmd.allocate(this.sampler_);
-		rcmd.allocate(this.shader_);
 		this.rd_.dispatch(rcmd);
 		this.rd_.processFrame();
 	}
@@ -312,6 +319,19 @@ class LegacyEffect implements render.Effect {
 		mesh: meshdata.MeshData, primGroup: meshdata.PrimitiveGroup,
 		toBuffer: render.RenderCommandBuffer
 	) {
+		const ldata = evData as LegacyEffectData;
+		let shader = ldata.specular ? this.diffSpecShader_ : this.diffShader_;
+		if (! shader) {
+			shader = render.gl1.makeLegacyShader(this.rd_, ldata.specular);
+			toBuffer.allocate(shader);
+			if (ldata.specular) {
+				this.diffSpecShader_ = shader;
+			}
+			else {
+				this.diffShader_ = shader;
+			}
+		}
+
 		const mv = mat4.multiply(mat4.create(), camera.viewMatrix, modelMatrix);
 		const mvp = mat4.multiply(mat4.create(), camera.projectionMatrix, mv);
 		const normMat = mat3.normalFromMat4(mat3.create(), mv);
@@ -348,13 +368,13 @@ class LegacyEffect implements render.Effect {
 				{ name: "fogColour", value: this.fogColour },
 				{ name: "fogParams", value: this.fogParams },
 				{ name: "lightLUTParam", value: this.lighting_.lutParam },
-				{ name: "baseColour", value: (evData as LegacyEffectData).tint },
-				{ name: "texScaleOffset", value: (evData as LegacyEffectData).texScaleOffset }
+				{ name: "baseColour", value: ldata.tint },
+				{ name: "texScaleOffset", value: ldata.texScaleOffset }
 			],
 			pipeline: {
 				depthTest: render.DepthTest.Less,
 				depthWrite: true,
-				shader: this.shader_,
+				shader: shader,
 				faceCulling: render.FaceCulling.Back
 			}
 		}, 0);
@@ -364,6 +384,7 @@ class LegacyEffect implements render.Effect {
 		return {
 			__effectID: this.id,
 			diffuse: undefined,
+			specular: false,
 			tint: vec4.one(),
 			texScaleOffset: vec4.fromValues(1, 1, 0, 0)
 		};
@@ -395,8 +416,14 @@ class LegacyEffect implements render.Effect {
 	}
 
 	getValue(evd: render.EffectData, name: string): number | undefined {
+		if (name === "specular") {
+			return +(evd as LegacyEffectData).specular;
+		}
 		return undefined;
 	}
 	setValue(evd: render.EffectData, name: string, val: number) {
+		if (name === "specular") {
+			(evd as LegacyEffectData).specular = !!val;
+		}
 	}
 }
