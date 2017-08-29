@@ -123,7 +123,7 @@ namespace sd.render.shader {
 			{ name: "baseColour", type: SVT.Float4 },
 		],
 		samplers: [
-			{ name: "diffuseSampler", type: TextureClass.Plain, index: 0 },
+			{ name: "albedoMap", type: TextureClass.Plain, index: 0, ifExpr: "ALBEDO_MAP" },
 		],
 		structs: [
 			{
@@ -139,11 +139,13 @@ namespace sd.render.shader {
 		MaterialInfo getMaterialInfo(vec2 materialUV) {
 			MaterialInfo mi;
 			vec3 colour = srgbToLinear(baseColour.rgb);
-			vec3 mapColour = texture2D(diffuseSampler, materialUV).rgb;
-			#ifdef NO_SRGB_TEXTURES
-				mapColour = srgbToLinear(mapColour);
+			#ifdef ALBEDO_MAP
+				vec3 mapColour = texture2D(albedoMap, materialUV).rgb;
+				#ifdef NO_SRGB_TEXTURES
+					mapColour = srgbToLinear(mapColour);
+				#endif
+				colour *= mapColour;
 			#endif
-			colour *= mapColour;
 			mi.albedo = vec4(colour, 1.0);
 			return mi;
 		}
