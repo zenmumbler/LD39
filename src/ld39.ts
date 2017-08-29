@@ -228,6 +228,7 @@ class LD39Scene implements sd.SceneDelegate {
 		this.legacy.setVector(this.floorED, "texScaleOffset", [.125, .125, 0, 0]);
 		this.doorED = this.legacy.makeEffectData();
 		this.legacy.setTexture(this.doorED, "diffuse", this.doorTex);
+		this.legacy.setTexture(this.doorED, "normal", this.doorNormalTex);
 		this.legacy.setValue(this.doorED, "specular", 1);
 		this.baseEDs = [this.wallED, this.ceilED, this.doorED, this.floorED];
 

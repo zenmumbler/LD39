@@ -64,6 +64,11 @@ namespace sd.render.shader {
 
 	gl1Modules.simpleSurfaceInfo = {
 		name: "simpleSurfaceInfo",
+		requires: [
+			// "mathUtils",
+			"normalPerturbation",
+			"NormalMap"
+		],
 		provides: [
 			"SurfaceInfo"
 		],
@@ -87,8 +92,19 @@ namespace sd.render.shader {
 			SurfaceInfo si;
 			si.V = normalize(-vertexPos_cam);
 			si.N = normalize(vertexNormal_cam);
-			#ifdef HAS_BASE_UV
+			#if defined(HEIGHT_MAP) || defined(NORMAL_MAP)
+				mat3 TBN = cotangentFrame(si.N, vertexPos_cam, vertexUV_intp);
+			#endif
+			#ifdef HEIGHT_MAP
+				vec3 eyeTan = normalize(inverse(TBN) * si.V);
+				// <-- adjust uv using heightmap
 				si.UV = vertexUV_intp;
+			#elif defined(HAS_BASE_UV)
+				si.UV = vertexUV_intp;
+			#endif
+			#ifdef NORMAL_MAP
+				vec3 mapNormal = getMappedNormal(si.UV);
+				si.N = normalize(TBN * map);
 			#endif
 			return si;
 		}
@@ -230,6 +246,7 @@ namespace sd.render.gl1 {
 				"lightContrib",
 				"tiledLight",
 				"basicSRGB",
+				"basicNormalMap",
 				"simpleMaterialInfo",
 				"simpleSurfaceInfo",
 				"diffuseSpecularLight",
@@ -290,6 +307,8 @@ namespace sd.render.gl1 {
 				{ name: "ALBEDO_MAP", value: ldata.diffuse ? 1 : 0 },
 				{ name: "SPECULAR", value: +(ldata.specular) },
 				{ name: "SPECULAR_MAP", value: 0 },
+				{ name: "NORMAL_MAP", value: ldata.normal ? 1 : 0 },
+				{ name: "HEIGHT_MAP", value: 0 },
 			],
 			vertexFunction,
 			fragmentFunction
@@ -300,6 +319,7 @@ namespace sd.render.gl1 {
 
 interface LegacyEffectData extends render.EffectData {
 	diffuse: render.Texture | undefined;
+	normal: render.Texture | undefined;
 	specular: boolean;
 	tint: Float32Array;
 	texScaleOffset: Float32Array;
@@ -360,7 +380,7 @@ class LegacyEffect implements render.Effect {
 			primGroup,
 			textures: [
 				(evData as LegacyEffectData).diffuse,
-				undefined,
+				(evData as LegacyEffectData).normal,
 				undefined,
 				undefined,
 				undefined,
@@ -369,7 +389,7 @@ class LegacyEffect implements render.Effect {
 			],
 			samplers: [
 				this.sampler_,
-				undefined,
+				this.sampler_,
 				undefined,
 				undefined,
 				undefined,
@@ -401,6 +421,7 @@ class LegacyEffect implements render.Effect {
 		return {
 			__effectID: this.id,
 			diffuse: undefined,
+			normal: undefined,
 			specular: false,
 			tint: vec4.one(),
 			texScaleOffset: vec4.fromValues(1, 1, 0, 0)
@@ -408,10 +429,21 @@ class LegacyEffect implements render.Effect {
 	}
 
 	getTexture(evd: render.EffectData, name: string): render.Texture | undefined {
-		return (evd as LegacyEffectData).diffuse;
+		if (name === "diffuse") {
+			return (evd as LegacyEffectData).diffuse;
+		}
+		if (name === "normal") {
+			return (evd as LegacyEffectData).normal;
+		}
+		return undefined;
 	}
 	setTexture(evd: render.EffectData, name: string, tex: render.Texture | undefined) {
-		(evd as LegacyEffectData).diffuse = tex;
+		if (name === "diffuse") {
+			(evd as LegacyEffectData).diffuse = tex;
+		}
+		else if (name === "normal") {
+			(evd as LegacyEffectData).normal = tex;
+		}
 	}
 
 	getVector(evd: render.EffectData, name: string, out: sd.ArrayOfNumber): sd.ArrayOfNumber | undefined {
