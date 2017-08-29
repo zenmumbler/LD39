@@ -150,49 +150,6 @@ namespace sd.render.shader {
 		`
 	};
 
-	gl1Modules.xxxSurfaceInfo = {
-		name: "xxxSurfaceInfo",
-		provides: ["SurfaceInfo"],
-		samplers: [
-			{ name: "normalHeightMap", type: TextureClass.Plain, index: 3, ifExpr: "defined(NORMAL_MAP) || defined(HEIGHT_MAP)" }
-		],
-		code: `
-		SurfaceInfo calcSurfaceInfo() {
-			SurfaceInfo si;
-			si.V = normalize(-vertexPos_cam);
-			si.N = normalize(vertexNormal_cam);
-			#if defined(HEIGHT_MAP) || defined(NORMAL_MAP)
-				mat3 TBN = cotangentFrame(si.N, vertexPos_cam, vertexUV_intp);
-			#endif
-			#ifdef HEIGHT_MAP
-				vec3 eyeTan = normalize(inverse(TBN) * si.V);
-
-				// basic parallax
-				// float finalH = texture2D(normalHeightMap, vertexUV_intp).a;
-				// finalH = finalH * 0.04 - 0.02;
-				// si.UV = vertexUV_intp + (eyeTan.xy * h);
-
-				// parallax occlusion
-				float finalH = 0.0;
-				si.UV = parallaxMapping(eyeTan, vertexUV_intp, finalH);
-			#else
-				#ifdef HAS_BASE_UV
-					si.UV = vertexUV_intp;
-				#endif
-			#endif
-			#ifdef NORMAL_MAP
-				vec3 map = texture2D(normalHeightMap, si.UV).xyz * 2.0 - 1.0;
-				si.N = normalize(TBN * map);
-			#endif
-			si.NdV = max(0.001, dot(si.N, si.V));
-			si.transNormalMatrix = transpose(normalMatrix);
-			si.reflectedV = si.transNormalMatrix * reflect(-si.V, si.N);
-			return si;
-		}
-		`
-	};
-
-
 } // ns sd.render.shader
 
 namespace sd.render.gl1 {
