@@ -65,13 +65,15 @@ class LD39Scene implements sd.SceneDelegate {
 			dom.$1(".progress").style.width = (ratio * 100) + "%";
 		};
 
+		const sRGB = image.ColourSpace.sRGB;
+		const linear = image.ColourSpace.Linear;
 		const assets = [
-			image.loadImage(io.localURL("data/TexturesCom_GrayBareConcrete_albedo_S.jpg")).then(img => (progress(), img)),
-			image.loadImage(io.localURL("data/TexturesCom_BrownConcrete_albedo_S.jpg")).then(img => (progress(), img)),
-			image.loadImage(io.localURL("data/ceil-a.jpg")).then(img => (progress(), img)),
-			image.loadImage(io.localURL("data/metalplate.jpg")).then(img => (progress(), img)),
-			image.loadImage(io.localURL("data/metalplate-n.png")).then(img => (progress(), img)),
-			image.loadImage(io.localURL("data/crate.jpg")).then(img => (progress(), img)),
+			image.loadImage(io.localURL("data/TexturesCom_GrayBareConcrete_albedo_S.jpg"), sRGB).then(img => (progress(), img)),
+			image.loadImage(io.localURL("data/TexturesCom_BrownConcrete_albedo_S.jpg"), sRGB).then(img => (progress(), img)),
+			image.loadImage(io.localURL("data/ceil-a.jpg"), sRGB).then(img => (progress(), img)),
+			image.loadImage(io.localURL("data/metalplate.jpg"), sRGB).then(img => (progress(), img)),
+			image.loadImage(io.localURL("data/metalplate-n.png"), linear).then(img => (progress(), img)),
+			image.loadImage(io.localURL("data/crate.jpg"), sRGB).then(img => (progress(), img)),
 
 			asset.loadOBJFile(io.localURL("data/base.obj")).then(img => (progress(), img)),
 

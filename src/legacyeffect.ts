@@ -372,7 +372,7 @@ class LegacyEffect implements render.Effect {
 			pipeline: {
 				depthTest: render.DepthTest.Less,
 				depthWrite: true,
-				shader: shader,
+				shader,
 				faceCulling: render.FaceCulling.Back
 			}
 		}, 0);
