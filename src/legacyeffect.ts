@@ -45,6 +45,23 @@ namespace sd.render.shader {
 		`
 	};
 
+	gl1Modules.basicNormalMap = {
+		name: "basicNormalMap",
+		provides: [
+			"NormalMap"
+		],
+		samplers: [
+			{ name: "normalMap", type: TextureClass.Plain, index: 3, ifExpr: "NORMAL_MAP" }
+		],
+		code: `
+		#ifdef NORMALMAP
+			vec3 getMappedNormal(vec2 uv) {
+				return texture2D(normalMap, uv).xyz * 2.0 - 1.0;
+			}
+		#endif
+		`
+	};
+
 	gl1Modules.simpleSurfaceInfo = {
 		name: "simpleSurfaceInfo",
 		provides: [
