@@ -16,7 +16,6 @@ interface GameObject {
 
 class LD39Scene implements sd.SceneDelegate {
 	scene: sd.Scene;
-	legacy: render.Effect;
 	wallTex: render.Texture;
 	floorTex: render.Texture;
 	doorTex: render.Texture;
@@ -200,23 +199,23 @@ class LD39Scene implements sd.SceneDelegate {
 		const scene = this.scene;
 		this.scene.camera.perspective(65, .1, 20);
 
-		this.legacy = this.scene.rw.effectByName("legacy")!;
+		const legacy = this.scene.rw.effectByName("legacy")!;
 
-		const boxED = this.legacy.makeEffectData();
-		this.legacy.setTexture(boxED, "diffuse", this.boxTex);
-		const wallED = this.legacy.makeEffectData();
-		this.legacy.setTexture(wallED, "diffuse", this.wallTex);
-		this.legacy.setVector(wallED, "texScaleOffset", [.25, .25, 0, 0]);
-		const ceilED = this.legacy.makeEffectData();
-		this.legacy.setTexture(ceilED, "diffuse", this.wallTex);
-		this.legacy.setVector(ceilED, "texScaleOffset", [.125, .125, 0, 0]);
-		const floorED = this.legacy.makeEffectData();
-		this.legacy.setTexture(floorED, "diffuse", this.floorTex);
-		this.legacy.setVector(floorED, "texScaleOffset", [.125, .125, 0, 0]);
-		const doorED = this.legacy.makeEffectData();
-		this.legacy.setTexture(doorED, "diffuse", this.doorTex);
-		this.legacy.setTexture(doorED, "normal", this.doorNormalTex);
-		this.legacy.setValue(doorED, "specular", 1);
+		const boxED = legacy.makeEffectData();
+		legacy.setTexture(boxED, "diffuse", this.boxTex);
+		const wallED = legacy.makeEffectData();
+		legacy.setTexture(wallED, "diffuse", this.wallTex);
+		legacy.setVector(wallED, "texScaleOffset", [.25, .25, 0, 0]);
+		const ceilED = legacy.makeEffectData();
+		legacy.setTexture(ceilED, "diffuse", this.wallTex);
+		legacy.setVector(ceilED, "texScaleOffset", [.125, .125, 0, 0]);
+		const floorED = legacy.makeEffectData();
+		legacy.setTexture(floorED, "diffuse", this.floorTex);
+		legacy.setVector(floorED, "texScaleOffset", [.125, .125, 0, 0]);
+		const doorED = legacy.makeEffectData();
+		legacy.setTexture(doorED, "diffuse", this.doorTex);
+		legacy.setTexture(doorED, "normal", this.doorNormalTex);
+		legacy.setValue(doorED, "specular", 1);
 		const baseEDs = [wallED, ceilED, doorED, floorED];
 
 		const makeGO = (mass: number, position: sd.ConstFloat3, meshData: meshdata.MeshData, ed: render.EffectData[], shape: physics.PhysicsShape, friction = 0.6): GameObject => {
