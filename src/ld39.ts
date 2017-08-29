@@ -21,6 +21,7 @@ class LD39Scene implements sd.SceneDelegate {
 	ceilTex: render.Texture;
 	floorTex: render.Texture;
 	doorTex: render.Texture;
+	doorNormalTex: render.Texture;
 	boxTex: render.Texture;
 
 	wallED: render.EffectData;
@@ -55,7 +56,7 @@ class LD39Scene implements sd.SceneDelegate {
 		this.sound_ = new Sound(this.scene.ad);
 		this.soundAssets = { steps: [] as AudioBuffer[] } as SoundAssets;
 
-		const totalAssets = 11;
+		const totalAssets = 12;
 		let loadedAssets = 0;
 
 		const progress = () => {
@@ -69,6 +70,7 @@ class LD39Scene implements sd.SceneDelegate {
 			image.loadImage(io.localURL("data/TexturesCom_BrownConcrete_albedo_S.jpg")).then(img => (progress(), img)),
 			image.loadImage(io.localURL("data/ceil-a.jpg")).then(img => (progress(), img)),
 			image.loadImage(io.localURL("data/metalplate.jpg")).then(img => (progress(), img)),
+			image.loadImage(io.localURL("data/metalplate-n.jpg")).then(img => (progress(), img)),
 			image.loadImage(io.localURL("data/crate.jpg")).then(img => (progress(), img)),
 
 			asset.loadOBJFile(io.localURL("data/base.obj")).then(img => (progress(), img)),
@@ -82,11 +84,12 @@ class LD39Scene implements sd.SceneDelegate {
 
 
 		return Promise.all(assets as Promise<any>[]).then(
-			([wallTex, ceilTex, floorTex, doorTex, boxTex, baseGroup]) => {
+			([wallTex, ceilTex, floorTex, doorTex, doorNormalTex, boxTex, baseGroup]) => {
 				this.wallTex = render.makeTex2DFromProvider(wallTex as image.PixelDataProvider, render.MipMapMode.Regenerate);
 				this.ceilTex = render.makeTex2DFromProvider(ceilTex as image.PixelDataProvider, render.MipMapMode.Regenerate);
 				this.floorTex = render.makeTex2DFromProvider(floorTex as image.PixelDataProvider, render.MipMapMode.Regenerate);
 				this.doorTex = render.makeTex2DFromProvider(doorTex as image.PixelDataProvider, render.MipMapMode.Regenerate);
+				this.doorNormalTex = render.makeTex2DFromProvider(doorNormalTex as image.PixelDataProvider, render.MipMapMode.Regenerate);
 				this.boxTex = render.makeTex2DFromProvider(boxTex as image.PixelDataProvider, render.MipMapMode.Regenerate);
 
 				// -- boxes
@@ -110,6 +113,7 @@ class LD39Scene implements sd.SceneDelegate {
 				rcb.allocate(this.ceilTex);
 				rcb.allocate(this.floorTex);
 				rcb.allocate(this.doorTex);
+				rcb.allocate(this.doorNormalTex);
 				rcb.allocate(this.boxTex);
 				rcb.allocate(this.boxMesh);
 				rcb.allocate(this.baseMesh);
