@@ -23,13 +23,6 @@ class LD39Scene implements sd.SceneDelegate {
 	doorNormalTex: render.Texture;
 	boxTex: render.Texture;
 
-	wallED: render.EffectData;
-	ceilED: render.EffectData;
-	floorED: render.EffectData;
-	doorED: render.EffectData;
-	boxED: render.EffectData;
-	baseEDs: render.EffectData[];
-
 	boxMesh: meshdata.MeshData;
 	baseMesh: meshdata.MeshData;
 
@@ -209,22 +202,22 @@ class LD39Scene implements sd.SceneDelegate {
 
 		this.legacy = this.scene.rw.effectByName("legacy")!;
 
-		this.boxED = this.legacy.makeEffectData();
-		this.legacy.setTexture(this.boxED, "diffuse", this.boxTex);
-		this.wallED = this.legacy.makeEffectData();
-		this.legacy.setTexture(this.wallED, "diffuse", this.wallTex);
-		this.legacy.setVector(this.wallED, "texScaleOffset", [.25, .25, 0, 0]);
-		this.ceilED = this.legacy.makeEffectData();
-		this.legacy.setTexture(this.ceilED, "diffuse", this.wallTex);
-		this.legacy.setVector(this.ceilED, "texScaleOffset", [.125, .125, 0, 0]);
-		this.floorED = this.legacy.makeEffectData();
-		this.legacy.setTexture(this.floorED, "diffuse", this.floorTex);
-		this.legacy.setVector(this.floorED, "texScaleOffset", [.125, .125, 0, 0]);
-		this.doorED = this.legacy.makeEffectData();
-		this.legacy.setTexture(this.doorED, "diffuse", this.doorTex);
-		this.legacy.setTexture(this.doorED, "normal", this.doorNormalTex);
-		this.legacy.setValue(this.doorED, "specular", 1);
-		this.baseEDs = [this.wallED, this.ceilED, this.doorED, this.floorED];
+		const boxED = this.legacy.makeEffectData();
+		this.legacy.setTexture(boxED, "diffuse", this.boxTex);
+		const wallED = this.legacy.makeEffectData();
+		this.legacy.setTexture(wallED, "diffuse", this.wallTex);
+		this.legacy.setVector(wallED, "texScaleOffset", [.25, .25, 0, 0]);
+		const ceilED = this.legacy.makeEffectData();
+		this.legacy.setTexture(ceilED, "diffuse", this.wallTex);
+		this.legacy.setVector(ceilED, "texScaleOffset", [.125, .125, 0, 0]);
+		const floorED = this.legacy.makeEffectData();
+		this.legacy.setTexture(floorED, "diffuse", this.floorTex);
+		this.legacy.setVector(floorED, "texScaleOffset", [.125, .125, 0, 0]);
+		const doorED = this.legacy.makeEffectData();
+		this.legacy.setTexture(doorED, "diffuse", this.doorTex);
+		this.legacy.setTexture(doorED, "normal", this.doorNormalTex);
+		this.legacy.setValue(doorED, "specular", 1);
+		const baseEDs = [wallED, ceilED, doorED, floorED];
 
 		const makeGO = (mass: number, position: sd.ConstFloat3, meshData: meshdata.MeshData, ed: render.EffectData[], shape: physics.PhysicsShape, friction = 0.6): GameObject => {
 			const entity = scene.entities.create();
@@ -310,17 +303,17 @@ class LD39Scene implements sd.SceneDelegate {
 		makeCeilingLight(-41, 50); // east final corridor
 		makeCeilingLight(-57, 50, [0, 1, 0]);
 
-		makeGO(0, [0, 0, 0], this.baseMesh, this.baseEDs, this.baseShape, .9);
+		makeGO(0, [0, 0, 0], this.baseMesh, baseEDs, this.baseShape, .9);
 
-		makeGO(1, [-1, .3, 7], this.boxMesh, [this.boxED], this.boxShape);
+		makeGO(1, [-1, .3, 7], this.boxMesh, [boxED], this.boxShape);
 
-		makeGO(1, [-25, .3, 50.3], this.boxMesh, [this.boxED], this.boxShape);
-		makeGO(1, [-25.1, .8, 50], this.boxMesh, [this.boxED], this.boxShape);
-		makeGO(1, [-24.9, .3, 49.7], this.boxMesh, [this.boxED], this.boxShape);
+		makeGO(1, [-25, .3, 50.3], this.boxMesh, [boxED], this.boxShape);
+		makeGO(1, [-25.1, .8, 50], this.boxMesh, [boxED], this.boxShape);
+		makeGO(1, [-24.9, .3, 49.7], this.boxMesh, [boxED], this.boxShape);
 		
-		makeGO(1, [24.7, .3, 54], this.boxMesh, [this.boxED], this.boxShape);
-		makeGO(1, [23, .3, 55], this.boxMesh, [this.boxED], this.boxShape);
-		makeGO(1, [23.4, .3, 54.1], this.boxMesh, [this.boxED], this.boxShape);
+		makeGO(1, [24.7, .3, 54], this.boxMesh, [boxED], this.boxShape);
+		makeGO(1, [23, .3, 55], this.boxMesh, [boxED], this.boxShape);
+		makeGO(1, [23.4, .3, 54.1], this.boxMesh, [boxED], this.boxShape);
 
 		this.playerCtl = new PlayerController(dom.$1("canvas"), [0, 1.1, 3], scene, this.sound_);
 		this.sound_.setAssets(this.soundAssets);
