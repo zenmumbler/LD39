@@ -38,9 +38,6 @@ class LD39Scene implements sd.SceneDelegate {
 
 	boxShape: physics.PhysicsShape;
 	baseShape: physics.PhysicsShape;
-	boxes: GameObject[] = [];
-
-	baseObject: GameObject;
 
 	playerCtl: PlayerController;
 
@@ -214,7 +211,6 @@ class LD39Scene implements sd.SceneDelegate {
 
 		this.boxED = this.legacy.makeEffectData();
 		this.legacy.setTexture(this.boxED, "diffuse", this.boxTex);
-
 		this.wallED = this.legacy.makeEffectData();
 		this.legacy.setTexture(this.wallED, "diffuse", this.wallTex);
 		this.legacy.setVector(this.wallED, "texScaleOffset", [.25, .25, 0, 0]);
@@ -314,17 +310,17 @@ class LD39Scene implements sd.SceneDelegate {
 		makeCeilingLight(-41, 50); // east final corridor
 		makeCeilingLight(-57, 50, [0, 1, 0]);
 
-		this.baseObject = makeGO(0, [0, 0, 0], this.baseMesh, this.baseEDs, this.baseShape, .9);
+		makeGO(0, [0, 0, 0], this.baseMesh, this.baseEDs, this.baseShape, .9);
 
-		this.boxes.push(makeGO(1, [-1, .3, 7], this.boxMesh, [this.boxED], this.boxShape));
+		makeGO(1, [-1, .3, 7], this.boxMesh, [this.boxED], this.boxShape);
 
-		this.boxes.push(makeGO(1, [-25, .3, 50.3], this.boxMesh, [this.boxED], this.boxShape));
-		this.boxes.push(makeGO(1, [-25.1, .8, 50], this.boxMesh, [this.boxED], this.boxShape));
-		this.boxes.push(makeGO(1, [-24.9, .3, 49.7], this.boxMesh, [this.boxED], this.boxShape));
+		makeGO(1, [-25, .3, 50.3], this.boxMesh, [this.boxED], this.boxShape);
+		makeGO(1, [-25.1, .8, 50], this.boxMesh, [this.boxED], this.boxShape);
+		makeGO(1, [-24.9, .3, 49.7], this.boxMesh, [this.boxED], this.boxShape);
 		
-		this.boxes.push(makeGO(1, [24.7, .3, 54], this.boxMesh, [this.boxED], this.boxShape));
-		this.boxes.push(makeGO(1, [23, .3, 55], this.boxMesh, [this.boxED], this.boxShape));
-		this.boxes.push(makeGO(1, [23.4, .3, 54.1], this.boxMesh, [this.boxED], this.boxShape));
+		makeGO(1, [24.7, .3, 54], this.boxMesh, [this.boxED], this.boxShape);
+		makeGO(1, [23, .3, 55], this.boxMesh, [this.boxED], this.boxShape);
+		makeGO(1, [23.4, .3, 54.1], this.boxMesh, [this.boxED], this.boxShape);
 
 		this.playerCtl = new PlayerController(dom.$1("canvas"), [0, 1.1, 3], scene, this.sound_);
 		this.sound_.setAssets(this.soundAssets);
