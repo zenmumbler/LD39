@@ -1,0 +1,20 @@
+{
+	"delegate": "LD39Scene",
+	"assets": {
+		"files": [
+			{ "path": "data/TexturesCom_GrayBareConcrete_albedo_S.jpg", "kind": "tex2D", "colourSpace": "sRGB", "mipmaps": "regen" },
+			{ "path": "data/ceil-a.jpg", "kind": "tex2D", "colourSpace": "sRGB", "mipmaps": "regen" },
+			{ "path": "data/metalplate.jpg", "kind": "tex2D", "colourSpace": "sRGB", "mipmaps": "regen" },
+			{ "path": "data/metalplate-n.png", "kind": "tex2D", "colourSpace": "linear", "mipmaps": "regen" },
+			{ "path": "data/crate.jpg", "kind": "tex2D", "colourSpace": "sRGB", "mipmaps": "regen" },
+
+			{ "path": "data/base.obj", "kind": "group" },
+
+			{ "path": "data/sound/Bart-Roijmans-Bigboss-looped.mp3", "kind": "sound" },
+			{ "path": "data/sound/34253__ddohler__hard-walking_0.mp3", "kind": "sound" },
+			{ "path": "data/sound/34253__ddohler__hard-walking_1.mp3", "kind": "sound" },
+			{ "path": "data/sound/381957__avensol__security-alarm.mp3", "kind": "sound" },
+			{ "path": "data/sound/363122__el-bee__landmass-earth-rumble.mp3", "kind": "sound" }
+		]
+	}
+}

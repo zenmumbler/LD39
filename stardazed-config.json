@@ -1,0 +1,24 @@
+{
+	"assets": {
+		"roots": [
+			{
+				"name": "data",
+				"loaders": [
+					{ "type": "RelativeURLLoader", "relPath": "data/", "disableCache": false }
+				]
+			}
+		]
+	},
+	"physics": {
+		"ammo:useWebAssembly": true
+	},
+	"render": {
+		"canvasParentSelector": ".stageholder",
+		"initialWidth": 1280,
+		"initialHeight": 720
+	},
+	"load": {
+		"preloadScenes": ["base-scene"],
+		"initialScene": "base-scene"
+	}
+}
