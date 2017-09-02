@@ -56,11 +56,11 @@ class LD39Scene implements sd.SceneDelegate {
 		const sRGB = image.ColourSpace.sRGB;
 		const linear = image.ColourSpace.Linear;
 		const assets = [
-			image.loadImage(io.localURL("data/TexturesCom_GrayBareConcrete_albedo_S.jpg"), sRGB).then(img => (progress(), img)),
-			image.loadImage(io.localURL("data/ceil-a.jpg"), sRGB).then(img => (progress(), img)),
-			image.loadImage(io.localURL("data/metalplate.jpg"), sRGB).then(img => (progress(), img)),
-			image.loadImage(io.localURL("data/metalplate-n.png"), linear).then(img => (progress(), img)),
-			image.loadImage(io.localURL("data/crate.jpg"), sRGB).then(img => (progress(), img)),
+			asset.loadImage(io.localURL("data/TexturesCom_GrayBareConcrete_albedo_S.jpg"), sRGB, "image/jpg").then(img => (progress(), img)),
+			asset.loadImage(io.localURL("data/ceil-a.jpg"), sRGB, "image/jpg").then(img => (progress(), img)),
+			asset.loadImage(io.localURL("data/metalplate.jpg"), sRGB, "image/jpg").then(img => (progress(), img)),
+			asset.loadImage(io.localURL("data/metalplate-n.png"), linear, "image/png").then(img => (progress(), img)),
+			asset.loadImage(io.localURL("data/crate.jpg"), sRGB, "image/jpg").then(img => (progress(), img)),
 
 			asset.loadOBJFile(io.localURL("data/base.obj")).then(img => (progress(), img)),
 
