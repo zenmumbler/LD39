@@ -1,11 +1,12 @@
 newmtl walls
-map_Kd base/Blacktop_Old_01.jpg
+map_Kd TexturesCom_GrayBareConcrete_albedo_S.jpg
 
 newmtl floor
-map_Kd base/Concrete_Aggregate_Smoke.jpg
+map_Kd ceil-a.jpg
 
 newmtl ceiling
-map_Kd base/Granite_Dark_Gray.jpg
+map_Kd TexturesCom_GrayBareConcrete_albedo_S.jpg
 
 newmtl door
-map_Kd base/Ornate_Tile_01.jpg
+map_Kd metalplate.jpg
+norm metalplate-n.png
