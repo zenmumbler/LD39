@@ -16,6 +16,9 @@ interface GameObject {
 
 class LD39Scene implements sd.SceneDelegate {
 	scene: sd.Scene;
+	playerCtl: PlayerController;
+
+	// assets (to be removed)
 	wallTex: render.Texture;
 	floorTex: render.Texture;
 	doorTex: render.Texture;
@@ -28,10 +31,10 @@ class LD39Scene implements sd.SceneDelegate {
 	sound_: Sound;
 	soundAssets: SoundAssets;
 
+	// component-derived objects (should also be automatic)
 	boxShape: physics.PhysicsShape;
 	baseShape: physics.PhysicsShape;
 
-	playerCtl: PlayerController;
 
 	willLoadAssets() {
 		dom.show(".overlay.loading");
