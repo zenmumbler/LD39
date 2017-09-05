@@ -5,7 +5,8 @@
 			{
 				"name": "data",
 				"loaders": [
-					{ "type": "RelativeURLLoader", "relPath": "data/", "disableCache": false }
+					{ "type": "RelativeURLLoader", "relPath": "data/", "disableCache": false },
+					{ "type": "DataURLLoader" }
 				]
 			}
 		]
