@@ -1,20 +1,18 @@
 {
 	"delegate": "LD39Scene",
-	"assets": {
-		"files": [
-			{ "path": "data/TexturesCom_GrayBareConcrete_albedo_S.jpg", "kind": "tex2D", "colourSpace": "sRGB", "mipmaps": "regen" },
-			{ "path": "data/ceil-a.jpg", "kind": "tex2D", "colourSpace": "sRGB", "mipmaps": "regen" },
-			{ "path": "data/metalplate.jpg", "kind": "tex2D", "colourSpace": "sRGB", "mipmaps": "regen" },
-			{ "path": "data/metalplate-n.png", "kind": "tex2D", "colourSpace": "linear", "mipmaps": "regen" },
-			{ "path": "data/crate.jpg", "kind": "tex2D", "colourSpace": "sRGB", "mipmaps": "regen" },
+	"assets": [
+		{ "name": "walls_diff", "path": "data/TexturesCom_GrayBareConcrete_albedo_S.jpg", "kind": "tex2D", "colourSpace": "sRGB", "mipmaps": "regen" },
+		{ "name": "floor_diff", "path": "data/ceil-a.jpg", "kind": "tex2D", "colourSpace": "sRGB", "mipmaps": "regen" },
+		{ "name": "door_diff", "path": "data/metalplate.jpg", "kind": "tex2D", "colourSpace": "sRGB", "mipmaps": "regen" },
+		{ "name": "door_norm", "path": "data/metalplate-n.png", "kind": "tex2D", "colourSpace": "linear", "mipmaps": "regen" },
+		{ "name": "crate_diff", "path": "data/crate.jpg", "kind": "tex2D", "colourSpace": "sRGB", "mipmaps": "regen" },
 
-			{ "path": "data/base.obj", "kind": "group" },
+		{ "name": "base", "path": "data/base.obj", "kind": "group" },
 
-			{ "path": "data/sound/Bart-Roijmans-Bigboss-looped.mp3", "kind": "sound" },
-			{ "path": "data/sound/34253__ddohler__hard-walking_0.mp3", "kind": "sound" },
-			{ "path": "data/sound/34253__ddohler__hard-walking_1.mp3", "kind": "sound" },
-			{ "path": "data/sound/381957__avensol__security-alarm.mp3", "kind": "sound" },
-			{ "path": "data/sound/363122__el-bee__landmass-earth-rumble.mp3", "kind": "sound" }
-		]
-	}
+		{ "name": "music", "path": "data/sound/Bart-Roijmans-Bigboss-looped.mp3", "kind": "sound" },
+		{ "name": "step0", "path": "data/sound/34253__ddohler__hard-walking_0.mp3", "kind": "sound" },
+		{ "name": "step1", "path": "data/sound/34253__ddohler__hard-walking_1.mp3", "kind": "sound" },
+		{ "name": "alarm", "path": "data/sound/381957__avensol__security-alarm.mp3", "kind": "sound" },
+		{ "name": "rumble", "path": "data/sound/363122__el-bee__landmass-earth-rumble.mp3", "kind": "sound" }
+	]
 }
