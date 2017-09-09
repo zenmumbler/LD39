@@ -18,6 +18,8 @@ class LD39Scene implements sd.SceneDelegate {
 	scene: sd.Scene;
 	playerCtl: PlayerController;
 
+	assets: asset.Library;
+
 	// assets (to be removed)
 	wallTex: render.Texture;
 	floorTex: render.Texture;
@@ -47,6 +49,14 @@ class LD39Scene implements sd.SceneDelegate {
 		this.sound_ = new Sound(this.scene.ad);
 		this.soundAssets = { steps: [] as AudioBuffer[] } as SoundAssets;
 
+		this.assets = asset.makeLibrary([{
+			name: "data",
+			loaders: [
+				{ type: "RelativeURLLoader", relPath: "data/" },
+				{ type: "DataURLLoader" }
+			]
+		}]);
+
 		const totalAssets = 11;
 		let loadedAssets = 0;
 
@@ -59,13 +69,13 @@ class LD39Scene implements sd.SceneDelegate {
 		const sRGB = image.ColourSpace.sRGB;
 		const linear = image.ColourSpace.Linear;
 		const assets = [
-			asset.loadImage(io.localURL("data/TexturesCom_GrayBareConcrete_albedo_S.jpg"), sRGB, "image/jpg").then(img => (progress(), img)),
-			asset.loadImage(io.localURL("data/ceil-a.jpg"), sRGB, "image/jpg").then(img => (progress(), img)),
-			asset.loadImage(io.localURL("data/metalplate.jpg"), sRGB, "image/jpg").then(img => (progress(), img)),
-			asset.loadImage(io.localURL("data/metalplate-n.png"), linear, "image/png").then(img => (progress(), img)),
-			asset.loadImage(io.localURL("data/crate.jpg"), sRGB, "image/jpg").then(img => (progress(), img)),
+			this.assets.loadAny({ name: "walls_diff", path: "data/TexturesCom_GrayBareConcrete_albedo_S.jpg", kind: "image", colourSpace: "sRGB" }).then(img => (progress(), img)),
+			this.assets.loadAny({ name: "floor_diff", path: "data/ceil-a.jpg", kind: "image", colourSpace: "sRGB" }).then(img => (progress(), img)),
+			this.assets.loadAny({ name: "door_diff", path: "data/metalplate.jpg", kind: "image", colourSpace: "sRGB" }).then(img => (progress(), img)),
+			this.assets.loadAny({ name: "door_norm", path: "data/metalplate-n.png", kind: "image", colourSpace: "linear" }).then(img => (progress(), img)),
+			this.assets.loadAny({ name: "crate_diff", path: "data/crate.jpg", kind: "image", colourSpace: "sRGB" }).then(img => (progress(), img)),
 
-			asset.loadOBJFile(io.localURL("data/base.obj")).then(img => (progress(), img)),
+			this.assets.loadAny({ name: "base", path: "data/base.obj", kind: "group", mimeType: "application/wavefront-obj" }).then(img => (progress(), img)),
 
 			loadSoundFile(this.scene.ad, "data/sound/Bart-Roijmans-Bigboss-looped.mp3").then(buf => { progress(); this.soundAssets.music = buf; }),
 			loadSoundFile(this.scene.ad, "data/sound/34253__ddohler__hard-walking_0.mp3").then(buf => { progress(); this.soundAssets.steps[0] = buf; }),
@@ -77,6 +87,8 @@ class LD39Scene implements sd.SceneDelegate {
 
 		return Promise.all(assets as Promise<any>[]).then(
 			([wallTex, floorTex, doorTex, doorNormalTex, boxTex, baseGroup]) => {
+				console.info("WALLS_DIFF", this.assets.imageByName("walls_diff"));
+
 				this.wallTex = render.makeTex2DFromProvider(wallTex as image.PixelDataProvider, render.MipMapMode.Regenerate);
 				this.floorTex = render.makeTex2DFromProvider(floorTex as image.PixelDataProvider, render.MipMapMode.Regenerate);
 				this.doorTex = render.makeTex2DFromProvider(doorTex as image.PixelDataProvider, render.MipMapMode.Regenerate);
@@ -544,7 +556,6 @@ sd.App.messages.listenOnce("AppStart", undefined, () => {
 	rw.registerEffect(new LegacyEffect());
 
 	const scene = new sd.Scene(rw, adev, {
-		assetURLMapping: {},
 		physicsConfig: physics.makeDefaultPhysicsConfig(),
 		delegate: new LD39Scene()
 	});

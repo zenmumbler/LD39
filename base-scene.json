@@ -1,11 +1,11 @@
 {
 	"delegate": "LD39Scene",
 	"assets": [
-		{ "name": "walls_diff", "path": "data/TexturesCom_GrayBareConcrete_albedo_S.jpg", "kind": "tex2D", "colourSpace": "sRGB", "mipmaps": "regen" },
-		{ "name": "floor_diff", "path": "data/ceil-a.jpg", "kind": "tex2D", "colourSpace": "sRGB", "mipmaps": "regen" },
-		{ "name": "door_diff", "path": "data/metalplate.jpg", "kind": "tex2D", "colourSpace": "sRGB", "mipmaps": "regen" },
-		{ "name": "door_norm", "path": "data/metalplate-n.png", "kind": "tex2D", "colourSpace": "linear", "mipmaps": "regen" },
-		{ "name": "crate_diff", "path": "data/crate.jpg", "kind": "tex2D", "colourSpace": "sRGB", "mipmaps": "regen" },
+		{ "name": "walls_diff", "path": "data/TexturesCom_GrayBareConcrete_albedo_S.jpg", "kind": "image", "colourSpace": "sRGB" },
+		{ "name": "floor_diff", "path": "data/ceil-a.jpg", "kind": "image", "colourSpace": "sRGB" },
+		{ "name": "door_diff", "path": "data/metalplate.jpg", "kind": "image", "colourSpace": "sRGB" },
+		{ "name": "door_norm", "path": "data/metalplate-n.png", "kind": "image", "colourSpace": "linear" },
+		{ "name": "crate_diff", "path": "data/crate.jpg", "kind": "image", "colourSpace": "sRGB" },
 
 		{ "name": "base", "path": "data/base.obj", "kind": "group" },
 
