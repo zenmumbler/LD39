@@ -22,14 +22,6 @@ interface SoundAssets {
 	doneGood: AudioBuffer;
 }
 
-function loadSoundFile(ad: audio.AudioDevice, filePath: string): Promise<AudioBuffer> {
-	return io.loadFile(filePath, {
-		responseType: io.FileLoadType.ArrayBuffer
-	}).then((data: ArrayBuffer) => {
-		return audio.makeAudioBufferFromData(ad, data);
-	});
-}
-
 class Sound {
 	private assets_: SoundAssets;
 	private ctx: AudioContext;

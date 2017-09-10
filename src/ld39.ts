@@ -77,18 +77,16 @@ class LD39Scene implements sd.SceneDelegate {
 
 			this.assets.loadAny({ name: "base", path: "data/base.obj", kind: "group", mimeType: "application/wavefront-obj" }).then(img => (progress(), img)),
 
-			loadSoundFile(this.scene.ad, "data/sound/Bart-Roijmans-Bigboss-looped.mp3").then(buf => { progress(); this.soundAssets.music = buf; }),
-			loadSoundFile(this.scene.ad, "data/sound/34253__ddohler__hard-walking_0.mp3").then(buf => { progress(); this.soundAssets.steps[0] = buf; }),
-			loadSoundFile(this.scene.ad, "data/sound/34253__ddohler__hard-walking_1.mp3").then(buf => { progress(); this.soundAssets.steps[1] = buf; }),
-			loadSoundFile(this.scene.ad, "data/sound/381957__avensol__security-alarm.mp3").then(buf => { progress(); this.soundAssets.alarm = buf; }),
-			loadSoundFile(this.scene.ad, "data/sound/363122__el-bee__landmass-earth-rumble.mp3").then(buf => { progress(); this.soundAssets.tremble = buf; }),
+			this.assets.loadAny({ name: "music", path: "data/sound/Bart-Roijmans-Bigboss-looped.mp3", kind: "audio" }).then(buf => { progress(); this.soundAssets.music = buf; }),
+			this.assets.loadAny({ name: "step0", path: "data/sound/34253__ddohler__hard-walking_0.mp3", kind: "audio" }).then(buf => { progress(); this.soundAssets.steps[0] = buf; }),
+			this.assets.loadAny({ name: "step1", path: "data/sound/34253__ddohler__hard-walking_1.mp3", kind: "audio" }).then(buf => { progress(); this.soundAssets.steps[1] = buf; }),
+			this.assets.loadAny({ name: "alarm", path: "data/sound/381957__avensol__security-alarm.mp3", kind: "audio" }).then(buf => { progress(); this.soundAssets.alarm = buf; }),
+			this.assets.loadAny({ name: "rumble", path: "data/sound/363122__el-bee__landmass-earth-rumble.mp3", kind: "audio" }).then(buf => { progress(); this.soundAssets.tremble = buf; }),
 		];
 
 
 		return Promise.all(assets as Promise<any>[]).then(
 			([wallTex, floorTex, doorTex, doorNormalTex, boxTex, baseGroup]) => {
-				console.info("WALLS_DIFF", this.assets.imageByName("walls_diff"));
-
 				this.wallTex = render.makeTex2DFromProvider(wallTex as image.PixelDataProvider, render.MipMapMode.Regenerate);
 				this.floorTex = render.makeTex2DFromProvider(floorTex as image.PixelDataProvider, render.MipMapMode.Regenerate);
 				this.doorTex = render.makeTex2DFromProvider(doorTex as image.PixelDataProvider, render.MipMapMode.Regenerate);
