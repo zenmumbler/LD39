@@ -66,32 +66,21 @@ class LD39Scene implements sd.SceneDelegate {
 			dom.$1(".progress").style.width = (ratio * 100) + "%";
 		};
 
-		const sRGB = image.ColourSpace.sRGB;
-		const linear = image.ColourSpace.Linear;
-		const assets = [
-			this.assets.loadAny({ name: "walls_diff", path: "data/TexturesCom_GrayBareConcrete_albedo_S.jpg", kind: "image", colourSpace: "sRGB" }).then(img => (progress(), img)),
-			this.assets.loadAny({ name: "floor_diff", path: "data/ceil-a.jpg", kind: "image", colourSpace: "sRGB" }).then(img => (progress(), img)),
-			this.assets.loadAny({ name: "door_diff", path: "data/metalplate.jpg", kind: "image", colourSpace: "sRGB" }).then(img => (progress(), img)),
-			this.assets.loadAny({ name: "door_norm", path: "data/metalplate-n.png", kind: "image", colourSpace: "linear" }).then(img => (progress(), img)),
-			this.assets.loadAny({ name: "crate_diff", path: "data/crate.jpg", kind: "image", colourSpace: "sRGB" }).then(img => (progress(), img)),
+		return io.loadFile("base-scene.json", { tryBreakCache: true, responseType: io.FileLoadType.JSON }).then(
+			(sceneJSON: any) => this.assets.loadAssetFile(sceneJSON.assets)
+		).then(
+			() => {
+				this.wallTex = render.makeTex2DFromProvider(this.assets.imageByName("walls_diff")!, render.MipMapMode.Regenerate);
+				this.floorTex = render.makeTex2DFromProvider(this.assets.imageByName("floor_diff")!, render.MipMapMode.Regenerate);
+				this.doorTex = render.makeTex2DFromProvider(this.assets.imageByName("door_diff")!, render.MipMapMode.Regenerate);
+				this.doorNormalTex = render.makeTex2DFromProvider(this.assets.imageByName("door_norm")!, render.MipMapMode.Regenerate);
+				this.boxTex = render.makeTex2DFromProvider(this.assets.imageByName("crate_diff")!, render.MipMapMode.Regenerate);
 
-			this.assets.loadAny({ name: "base", path: "data/base.obj", kind: "group", mimeType: "application/wavefront-obj" }).then(img => (progress(), img)),
-
-			this.assets.loadAny({ name: "music", path: "data/sound/Bart-Roijmans-Bigboss-looped.mp3", kind: "audio" }).then(buf => { progress(); this.soundAssets.music = buf; }),
-			this.assets.loadAny({ name: "step0", path: "data/sound/34253__ddohler__hard-walking_0.mp3", kind: "audio" }).then(buf => { progress(); this.soundAssets.steps[0] = buf; }),
-			this.assets.loadAny({ name: "step1", path: "data/sound/34253__ddohler__hard-walking_1.mp3", kind: "audio" }).then(buf => { progress(); this.soundAssets.steps[1] = buf; }),
-			this.assets.loadAny({ name: "alarm", path: "data/sound/381957__avensol__security-alarm.mp3", kind: "audio" }).then(buf => { progress(); this.soundAssets.alarm = buf; }),
-			this.assets.loadAny({ name: "rumble", path: "data/sound/363122__el-bee__landmass-earth-rumble.mp3", kind: "audio" }).then(buf => { progress(); this.soundAssets.tremble = buf; }),
-		];
-
-
-		return Promise.all(assets as Promise<any>[]).then(
-			([wallTex, floorTex, doorTex, doorNormalTex, boxTex, baseGroup]) => {
-				this.wallTex = render.makeTex2DFromProvider(wallTex as image.PixelDataProvider, render.MipMapMode.Regenerate);
-				this.floorTex = render.makeTex2DFromProvider(floorTex as image.PixelDataProvider, render.MipMapMode.Regenerate);
-				this.doorTex = render.makeTex2DFromProvider(doorTex as image.PixelDataProvider, render.MipMapMode.Regenerate);
-				this.doorNormalTex = render.makeTex2DFromProvider(doorNormalTex as image.PixelDataProvider, render.MipMapMode.Regenerate);
-				this.boxTex = render.makeTex2DFromProvider(boxTex as image.PixelDataProvider, render.MipMapMode.Regenerate);
+				this.soundAssets.music = this.assets.audioByName("music")!;
+				this.soundAssets.steps[0] = this.assets.audioByName("step0")!;
+				this.soundAssets.steps[1] = this.assets.audioByName("step1")!;
+				this.soundAssets.alarm = this.assets.audioByName("alarm")!;
+				this.soundAssets.tremble = this.assets.audioByName("rumble")!; 
 
 				// -- boxes
 				const cubeHalfExt = 0.25;
@@ -102,7 +91,7 @@ class LD39Scene implements sd.SceneDelegate {
 				})!;
 
 				// -------- DA BASE
-				const baseG = baseGroup as asset.AssetGroup;
+				const baseG = this.assets.groupByName("base")!;
 				this.baseMesh = baseG.meshes[0];
 				this.baseShape = physics.makeShape({
 					type: physics.PhysicsShapeType.Mesh,

@@ -7,12 +7,12 @@
 		{ "name": "door_norm", "path": "data/metalplate-n.png", "kind": "image", "colourSpace": "linear" },
 		{ "name": "crate_diff", "path": "data/crate.jpg", "kind": "image", "colourSpace": "sRGB" },
 
-		{ "name": "base", "path": "data/base.obj", "kind": "group" },
+		{ "name": "base", "path": "data/base.obj", "kind": "group", "mimeType": "application/wavefront-obj" },
 
-		{ "name": "music", "path": "data/sound/Bart-Roijmans-Bigboss-looped.mp3", "kind": "sound" },
-		{ "name": "step0", "path": "data/sound/34253__ddohler__hard-walking_0.mp3", "kind": "sound" },
-		{ "name": "step1", "path": "data/sound/34253__ddohler__hard-walking_1.mp3", "kind": "sound" },
-		{ "name": "alarm", "path": "data/sound/381957__avensol__security-alarm.mp3", "kind": "sound" },
-		{ "name": "rumble", "path": "data/sound/363122__el-bee__landmass-earth-rumble.mp3", "kind": "sound" }
+		{ "name": "music", "path": "data/sound/Bart-Roijmans-Bigboss-looped.mp3", "kind": "audio" },
+		{ "name": "step0", "path": "data/sound/34253__ddohler__hard-walking_0.mp3", "kind": "audio" },
+		{ "name": "step1", "path": "data/sound/34253__ddohler__hard-walking_1.mp3", "kind": "audio" },
+		{ "name": "alarm", "path": "data/sound/381957__avensol__security-alarm.mp3", "kind": "audio" },
+		{ "name": "rumble", "path": "data/sound/363122__el-bee__landmass-earth-rumble.mp3", "kind": "audio" }
 	]
 }
