@@ -7,7 +7,7 @@
 		{ "name": "door_norm", "path": "data/metalplate-n.png", "kind": "image", "colourSpace": "linear" },
 		{ "name": "crate_diff", "path": "data/crate.jpg", "kind": "image", "colourSpace": "sRGB" },
 
-		{ "name": "base", "path": "data/base.obj", "kind": "group", "mimeType": "application/wavefront-obj" },
+		{ "name": "base", "path": "data/base.obj", "kind": "group" },
 
 		{ "name": "music", "path": "data/sound/Bart-Roijmans-Bigboss-looped.mp3", "kind": "audio" },
 		{ "name": "step0", "path": "data/sound/34253__ddohler__hard-walking_0.mp3", "kind": "audio" },
