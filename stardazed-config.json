@@ -12,7 +12,9 @@
 		]
 	},
 	"physics": {
-		"ammo:useWebAssembly": true
+		"ammo": {
+			"useWebAssembly": true
+		}
 	},
 	"render": {
 		"canvasParentSelector": ".stageholder",
