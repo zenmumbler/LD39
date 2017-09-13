@@ -70,11 +70,20 @@ class LD39Scene implements sd.SceneDelegate {
 			(sceneJSON: any) => this.assets.loadAssetFile(sceneJSON.assets)
 		).then(
 			() => {
-				this.wallTex = render.makeTex2DFromProvider(this.assets.imageByName("walls_diff")!, render.MipMapMode.Regenerate);
-				this.floorTex = render.makeTex2DFromProvider(this.assets.imageByName("floor_diff")!, render.MipMapMode.Regenerate);
-				this.doorTex = render.makeTex2DFromProvider(this.assets.imageByName("door_diff")!, render.MipMapMode.Regenerate);
-				this.doorNormalTex = render.makeTex2DFromProvider(this.assets.imageByName("door_norm")!, render.MipMapMode.Regenerate);
-				this.boxTex = render.makeTex2DFromProvider(this.assets.imageByName("crate_diff")!, render.MipMapMode.Regenerate);
+				// -------- DA BASE
+				const baseG = this.assets.groupByName("base")!;
+				console.info("BASE", baseG);
+				this.baseMesh = baseG.meshes[0];
+				this.baseShape = physics.makeShape({
+					type: physics.PhysicsShapeType.Mesh,
+					mesh: this.baseMesh
+				})!;
+
+				this.wallTex = baseG.materials[0].colour.colourTexture!.texture;
+				this.floorTex = baseG.materials[1].colour.colourTexture!.texture;
+				this.doorTex = baseG.materials[3].colour.colourTexture!.texture;
+				this.doorNormalTex = baseG.materials[3].normalTexture!.texture;
+				this.boxTex = this.assets.textureByName("crate_diff")!.texture;
 
 				this.soundAssets.music = this.assets.audioByName("music")!;
 				this.soundAssets.steps[0] = this.assets.audioByName("step0")!;
@@ -88,14 +97,6 @@ class LD39Scene implements sd.SceneDelegate {
 				this.boxShape = physics.makeShape({
 					type: physics.PhysicsShapeType.Box,
 					halfExtents: [cubeHalfExt, cubeHalfExt, cubeHalfExt]
-				})!;
-
-				// -------- DA BASE
-				const baseG = this.assets.groupByName("base")!;
-				this.baseMesh = baseG.meshes[0];
-				this.baseShape = physics.makeShape({
-					type: physics.PhysicsShapeType.Mesh,
-					mesh: this.baseMesh
 				})!;
 
 				const rcb = new render.RenderCommandBuffer();
