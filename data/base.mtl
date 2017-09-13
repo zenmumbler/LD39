@@ -10,3 +10,4 @@ map_Kd TexturesCom_GrayBareConcrete_albedo_S.jpg
 newmtl door
 map_Kd metalplate.jpg
 norm metalplate-n.png
+Ns 8
