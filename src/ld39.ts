@@ -85,11 +85,11 @@ class LD39Scene implements sd.SceneDelegate {
 				this.doorNormalTex = baseG.materials[3].normalTexture!.texture;
 				this.boxTex = this.assets.textureByName("crate_diff")!.texture;
 
-				this.soundAssets.music = this.assets.audioByName("music")!;
-				this.soundAssets.steps[0] = this.assets.audioByName("step0")!;
-				this.soundAssets.steps[1] = this.assets.audioByName("step1")!;
-				this.soundAssets.alarm = this.assets.audioByName("alarm")!;
-				this.soundAssets.tremble = this.assets.audioByName("rumble")!; 
+				this.soundAssets.music = this.assets.audioByName("music")!.buffer;
+				this.soundAssets.steps[0] = this.assets.audioByName("step0")!.buffer;
+				this.soundAssets.steps[1] = this.assets.audioByName("step1")!.buffer;
+				this.soundAssets.alarm = this.assets.audioByName("alarm")!.buffer;
+				this.soundAssets.tremble = this.assets.audioByName("rumble")!.buffer; 
 
 				// -- boxes
 				const cubeHalfExt = 0.25;
