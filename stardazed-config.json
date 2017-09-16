@@ -1,15 +1,13 @@
 {
 	"version": "0.1",
 	"assets": {
-		"roots": [
-			{
-				"name": "data",
-				"loaders": [
-					{ "type": "RelativeURLLoader", "relPath": "data/", "disableCache": false },
-					{ "type": "DataURLLoader" }
-				]
-			}
-		]
+		"loader": {
+			"type": "chain",
+			"loaders": [
+				{ "type": "data-url" },
+				{ "type": "rooted", "prefix": "data", "loader": { "type": "relative-url", "relPath": "data/" } }
+			]
+		}
 	},
 	"physics": {
 		"ammo": {

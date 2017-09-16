@@ -49,13 +49,13 @@ class LD39Scene implements sd.SceneDelegate {
 		this.sound_ = new Sound(this.scene.ad);
 		this.soundAssets = { steps: [] as AudioBuffer[] } as SoundAssets;
 
-		this.assets = asset.makeLibrary([{
-			name: "data",
+		this.assets = asset.makeLibrary({
+			type: "chain",
 			loaders: [
-				{ type: "RelativeURLLoader", relPath: "data/" },
-				{ type: "DataURLLoader" }
+				{ type: "data-url" },
+				{ type: "rooted", prefix: "data", loader: { type: "relative-url", relPath: "data/" } }
 			]
-		}]);
+		});
 
 		const totalAssets = 11;
 		let loadedAssets = 0;

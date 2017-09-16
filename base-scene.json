@@ -7,7 +7,8 @@
 			"metadata": {
 				"image": {
 					"name": "crate_diff",
-					"dataPath": "data/crate.jpg", "kind": "image",
+					"kind": "image",
+					"dataPath": "data/crate.jpg",
 					"metadata": {
 						"colourSpace": "sRGB"
 					}
