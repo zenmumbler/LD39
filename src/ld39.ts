@@ -71,9 +71,9 @@ class LD39Scene implements sd.SceneDelegate {
 		).then(
 			() => {
 				// -------- DA BASE
-				const baseG = this.assets.groupByName("base")!;
+				const baseG = this.assets.groupByName("base")!.models[0]!;
 				console.info("BASE", baseG);
-				this.baseMesh = baseG.meshes[0];
+				this.baseMesh = baseG.mesh!;
 				this.baseShape = physics.makeShape({
 					type: physics.PhysicsShapeType.Mesh,
 					mesh: this.baseMesh
