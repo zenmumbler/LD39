@@ -22,6 +22,18 @@
 		{ "name": "step0", "dataPath": "data/sound/34253__ddohler__hard-walking_0.mp3", "kind": "audio" },
 		{ "name": "step1", "dataPath": "data/sound/34253__ddohler__hard-walking_1.mp3", "kind": "audio" },
 		{ "name": "alarm", "dataPath": "data/sound/381957__avensol__security-alarm.mp3", "kind": "audio" },
-		{ "name": "rumble", "dataPath": "data/sound/363122__el-bee__landmass-earth-rumble.mp3", "kind": "audio" }
+		{ "name": "rumble", "dataPath": "data/sound/363122__el-bee__landmass-earth-rumble.mp3", "kind": "audio" },
+
+		{
+			"name": "crate_mesh",
+			"source": {
+				"type": "mesh-gen",
+
+				"meshType": "box",
+				"width": 0.5,
+				"height": 0.5,
+				"depth": 0.5
+			}
+		}
 	]
 }
