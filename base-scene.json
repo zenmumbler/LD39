@@ -4,29 +4,13 @@
 		{
 			"kind": "texture",
 			"name": "crate_diff",
-			"metadata": {
-				"image": {
-					"name": "crate_diff",
-					"kind": "image",
-					"dataPath": "data/crate.jpg",
-					"metadata": {
-						"colourSpace": "sRGB"
-					}
-				}
-			}
+			"dependencies": [
+				{ "url": "data/crate.jpg" }
+			]
 		},
-
-		{ "name": "base", "dataPath": "data/base.obj", "kind": "group" },
-
-		{ "name": "music", "dataPath": "data/sound/Bart-Roijmans-Bigboss-looped.mp3", "kind": "audio" },
-		{ "name": "step0", "dataPath": "data/sound/34253__ddohler__hard-walking_0.mp3", "kind": "audio" },
-		{ "name": "step1", "dataPath": "data/sound/34253__ddohler__hard-walking_1.mp3", "kind": "audio" },
-		{ "name": "alarm", "dataPath": "data/sound/381957__avensol__security-alarm.mp3", "kind": "audio" },
-		{ "name": "rumble", "dataPath": "data/sound/363122__el-bee__landmass-earth-rumble.mp3", "kind": "audio" },
-
 		{
 			"name": "crate_mesh",
-			"source": {
+			"generate": {
 				"type": "mesh-gen",
 
 				"meshType": "box",
@@ -34,6 +18,14 @@
 				"height": 0.5,
 				"depth": 0.5
 			}
-		}
+		},
+
+		{ "name": "base", "url": "data/base.obj" },
+
+		{ "name": "music", "url": "data/sound/Bart-Roijmans-Bigboss-looped.mp3" },
+		{ "name": "step0", "url": "data/sound/34253__ddohler__hard-walking_0.mp3" },
+		{ "name": "step1", "url": "data/sound/34253__ddohler__hard-walking_1.mp3" },
+		{ "name": "alarm", "url": "data/sound/381957__avensol__security-alarm.mp3" },
+		{ "name": "rumble", "url": "data/sound/363122__el-bee__landmass-earth-rumble.mp3" }
 	]
 }
