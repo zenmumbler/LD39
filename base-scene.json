@@ -5,7 +5,7 @@
 			"kind": "texture",
 			"name": "crate_diff",
 			"dependencies": [
-				{ "url": "data/crate.jpg" }
+				{ "uri": "data/crate.jpg" }
 			]
 		},
 		{
@@ -20,12 +20,12 @@
 			}
 		},
 
-		{ "name": "base", "url": "data/base.obj" },
+		{ "name": "base", "uri": "data/base.obj" },
 
-		{ "name": "music", "url": "data/sound/Bart-Roijmans-Bigboss-looped.mp3" },
-		{ "name": "step0", "url": "data/sound/34253__ddohler__hard-walking_0.mp3" },
-		{ "name": "step1", "url": "data/sound/34253__ddohler__hard-walking_1.mp3" },
-		{ "name": "alarm", "url": "data/sound/381957__avensol__security-alarm.mp3" },
-		{ "name": "rumble", "url": "data/sound/363122__el-bee__landmass-earth-rumble.mp3" }
+		{ "name": "music", "uri": "data/sound/Bart-Roijmans-Bigboss-looped.mp3" },
+		{ "name": "step0", "uri": "data/sound/34253__ddohler__hard-walking_0.mp3" },
+		{ "name": "step1", "uri": "data/sound/34253__ddohler__hard-walking_1.mp3" },
+		{ "name": "alarm", "uri": "data/sound/381957__avensol__security-alarm.mp3" },
+		{ "name": "rumble", "uri": "data/sound/363122__el-bee__landmass-earth-rumble.mp3" }
 	]
 }
