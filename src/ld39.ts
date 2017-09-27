@@ -18,6 +18,7 @@ class LD39Scene implements sd.SceneDelegate {
 	scene: sd.Scene;
 	playerCtl: PlayerController;
 
+	cache: asset.Cache;
 	pipeline: asset.AssetPipeline;
 	assets: asset.CacheAccess;
 
@@ -50,31 +51,22 @@ class LD39Scene implements sd.SceneDelegate {
 		this.sound_ = new Sound(this.scene.ad);
 		this.soundAssets = { steps: [] as AudioBuffer[] } as SoundAssets;
 
-		const cache: asset.Cache = {};
+		this.cache = {};
 		this.pipeline = asset.makeDefaultPipeline({
 			type: "chain",
 			loaders: [
 				{ type: "data-url" },
 				{ type: "rooted", prefix: "data", loader: { type: "doc-relative-url", relPath: "data/" } }
 			]
-		}, cache);
-		this.assets = asset.cacheAccessor(cache);
+		}, this.cache);
+		this.assets = asset.cacheAccessor(this.cache);
 
-		const totalAssets = 11;
-		let loadedAssets = 0;
-
-		const progress = () => {
-			loadedAssets += 1;
-			const ratio = loadedAssets / totalAssets;
-			dom.$1(".progress").style.width = (ratio * 100) + "%";
-		};
-
-		return io.loadFile("base-scene.json", { tryBreakCache: true, responseType: io.FileLoadType.JSON }).then(
-			(sceneJSON: any) => this.assets.loadAssetFile(sceneJSON.assets)
-		).then(
-			() => {
+		return io.loadFile("base-scene.json", { tryBreakCache: true, responseType: io.FileLoadType.JSON })
+			.then((sceneJSON: any) => 
+				Promise.all(sceneJSON.assets.map((a: asset.Asset) => this.pipeline.process(a)))
+			).then(() => {
 				// -------- DA BASE
-				const baseG = this.assets.groupByName("base")!.models[0]!;
+				const baseG = this.assets("model", "base");
 				console.info("BASE", baseG);
 				this.baseMesh = baseG.mesh!;
 				this.baseShape = physics.makeShape({
@@ -82,17 +74,17 @@ class LD39Scene implements sd.SceneDelegate {
 					mesh: this.baseMesh
 				})!;
 
-				this.wallTex = baseG.materials[0].colour.colourTexture!.texture;
-				this.floorTex = baseG.materials[1].colour.colourTexture!.texture;
-				this.doorTex = baseG.materials[3].colour.colourTexture!.texture;
-				this.doorNormalTex = baseG.materials[3].normalTexture!.texture;
-				this.boxTex = this.assets.textureByName("crate_diff")!.texture;
+				this.wallTex = baseG.materials[1].colour.colourTexture!.texture;
+				this.floorTex = baseG.materials[3].colour.colourTexture!.texture;
+				this.doorTex = baseG.materials[2].colour.colourTexture!.texture;
+				this.doorNormalTex = baseG.materials[2].normalTexture!.texture;
+				this.boxTex = this.assets("texture", "crate_diff").texture;
 
-				this.soundAssets.music = this.assets.audioByName("music")!.buffer;
-				this.soundAssets.steps[0] = this.assets.audioByName("step0")!.buffer;
-				this.soundAssets.steps[1] = this.assets.audioByName("step1")!.buffer;
-				this.soundAssets.alarm = this.assets.audioByName("alarm")!.buffer;
-				this.soundAssets.tremble = this.assets.audioByName("rumble")!.buffer; 
+				this.soundAssets.music = this.assets("audio", "music");
+				this.soundAssets.steps[0] = this.assets("audio", "step0");
+				this.soundAssets.steps[1] = this.assets("audio", "step1");
+				this.soundAssets.alarm = this.assets("audio", "alarm");
+				this.soundAssets.tremble = this.assets("audio", "rumble");
 
 				// -- boxes
 				const cubeHalfExt = 0.25;
