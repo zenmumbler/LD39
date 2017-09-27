@@ -8,17 +8,6 @@
 				{ "uri": "data/crate.jpg" }
 			]
 		},
-		{
-			"name": "crate_mesh",
-			"generate": {
-				"type": "mesh-gen",
-
-				"meshType": "box",
-				"width": 0.5,
-				"height": 0.5,
-				"depth": 0.5
-			}
-		},
 
 		{ "name": "base", "uri": "data/base.obj" },
 

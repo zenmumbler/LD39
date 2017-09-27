@@ -18,7 +18,8 @@ class LD39Scene implements sd.SceneDelegate {
 	scene: sd.Scene;
 	playerCtl: PlayerController;
 
-	assets: asset.Library;
+	pipeline: asset.AssetPipeline;
+	assets: asset.CacheAccess;
 
 	// assets (to be removed)
 	wallTex: render.Texture;
@@ -49,13 +50,15 @@ class LD39Scene implements sd.SceneDelegate {
 		this.sound_ = new Sound(this.scene.ad);
 		this.soundAssets = { steps: [] as AudioBuffer[] } as SoundAssets;
 
-		this.assets = asset.makeLibrary({
+		const cache: asset.Cache = {};
+		this.pipeline = asset.makeDefaultPipeline({
 			type: "chain",
 			loaders: [
 				{ type: "data-url" },
-				{ type: "rooted", prefix: "data", loader: { type: "relative-url", relPath: "data/" } }
+				{ type: "rooted", prefix: "data", loader: { type: "doc-relative-url", relPath: "data/" } }
 			]
-		});
+		}, cache);
+		this.assets = asset.cacheAccessor(cache);
 
 		const totalAssets = 11;
 		let loadedAssets = 0;

@@ -5,7 +5,7 @@
 			"type": "chain",
 			"loaders": [
 				{ "type": "data-url" },
-				{ "type": "rooted", "prefix": "data", "loader": { "type": "relative-url", "relPath": "data/" } }
+				{ "type": "rooted", "prefix": "data", "loader": { "type": "doc-relative-url", "relPath": "data/" } }
 			]
 		}
 	},
