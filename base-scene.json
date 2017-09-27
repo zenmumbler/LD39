@@ -4,12 +4,12 @@
 		{
 			"kind": "texture",
 			"name": "crate_diff",
-			"dependencies": [
-				{ "uri": "data/crate.jpg" }
-			]
+			"dependencies": {
+				"image": { "uri": "data/crate.jpg" }
+			}
 		},
 
-		{ "name": "base", "uri": "data/base.obj" },
+		{ "name": "base", "uri": "data/base.obj", "mimeType": "application/wavefront-obj" },
 
 		{ "name": "music", "uri": "data/sound/Bart-Roijmans-Bigboss-looped.mp3" },
 		{ "name": "step0", "uri": "data/sound/34253__ddohler__hard-walking_0.mp3" },
