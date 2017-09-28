@@ -2,10 +2,32 @@
 	"delegate": "LD39Scene",
 	"assets": [
 		{
-			"kind": "texture",
-			"name": "crate_diff",
+			"kind": "model",
+			"name": "crate",
 			"dependencies": {
-				"image": { "uri": "data/crate.jpg" }
+				"mesh": {
+					"generator": "mesh",
+					"metadata": {
+						"meshtype": "box",
+						"extents": [0.5, 0.5, 0.5]
+					}
+				},
+				"mat0": {
+					"kind": "material",
+					"metadata": {
+						"colour": {
+							"type": "diffuse"
+						}
+					},
+					"dependencies": {
+						"colourTexture": {
+							"kind": "texture",
+							"dependencies": {
+								"image": { "uri": "data/crate.jpg" }
+							}
+						}
+					}
+				}
 			}
 		},
 
@@ -16,5 +38,8 @@
 		{ "name": "step1", "uri": "data/sound/34253__ddohler__hard-walking_1.mp3" },
 		{ "name": "alarm", "uri": "data/sound/381957__avensol__security-alarm.mp3" },
 		{ "name": "rumble", "uri": "data/sound/363122__el-bee__landmass-earth-rumble.mp3" }
+	],
+	"entities": [
+
 	]
 }
