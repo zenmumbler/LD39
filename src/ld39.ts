@@ -33,7 +33,6 @@ class LD39Scene implements sd.SceneDelegate {
 	baseMesh: meshdata.MeshData;
 
 	sound_: Sound;
-	soundAssets: SoundAssets;
 
 	// component-derived objects (should also be automatic)
 	boxShape: physics.PhysicsShape;
@@ -48,9 +47,6 @@ class LD39Scene implements sd.SceneDelegate {
 	}
 
 	loadAssets(): Promise<render.RenderCommandBuffer> {
-		this.sound_ = new Sound(this.scene.ad);
-		this.soundAssets = { steps: [] as AudioBuffer[] } as SoundAssets;
-
 		this.cache = {};
 		this.pipeline = asset.makeDefaultPipeline({
 			type: "chain",
@@ -90,12 +86,6 @@ class LD39Scene implements sd.SceneDelegate {
 				})!;
 
 				this.boxTex = crate.materials[0].colour.colourTexture!.texture;
-
-				this.soundAssets.music = this.assets("audio", "music");
-				this.soundAssets.steps[0] = this.assets("audio", "step0");
-				this.soundAssets.steps[1] = this.assets("audio", "step1");
-				this.soundAssets.alarm = this.assets("audio", "alarm");
-				this.soundAssets.tremble = this.assets("audio", "rumble");
 
 				const rcb = new render.RenderCommandBuffer();
 				rcb.allocate(this.wallTex);
@@ -316,7 +306,17 @@ class LD39Scene implements sd.SceneDelegate {
 		makeGO(1, [23.4, .3, 54.1], this.boxMesh, [boxED], this.boxShape);
 
 		this.playerCtl = new PlayerController(dom.$1("canvas"), [0, 1.1, 3], scene, this.sound_);
-		this.sound_.setAssets(this.soundAssets);
+
+		this.sound_ = new Sound(this.scene.ad);
+		this.sound_.setAssets({
+			music: this.assets("audio", "music"),
+			steps: [
+				this.assets("audio", "step0"),
+				this.assets("audio", "step1")
+			],
+			alarm: this.assets("audio", "alarm"),
+			tremble: this.assets("audio", "rumble")
+		});
 		this.sound_.startMusic();
 
 		this.keyboardStuff();
