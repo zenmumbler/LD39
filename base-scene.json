@@ -40,6 +40,41 @@
 		{ "name": "rumble", "uri": "data/sound/363122__el-bee__landmass-earth-rumble.mp3" }
 	],
 	"entities": [
-
+		{
+			"pos": [0, 0, 0],
+			"model": "base",
+			"collider": {
+				"shape": "mesh",
+				"friction": 0.9
+			}
+		},
+		{
+			"pos": [-1, 0.3, 0.7],
+			"model": "crate",
+			"collider": {
+				"shape": { "type": "box", "extents": [0.5, 0.5, 0.5] }
+			}
+		},
+		{
+			"pos": [-25, 0.3, 50.3],
+			"model": "crate",
+			"collider": {
+				"shape": { "type": "box", "extents": [0.5, 0.5, 0.5] }
+			}
+		},
+		{
+			"pos": [-25.1, 0.8, 50],
+			"model": "crate",
+			"collider": {
+				"shape": { "type": "box", "extents": [0.5, 0.5, 0.5] }
+			}
+		},
+		{
+			"pos": [-24.9, 0.3, 49.7],
+			"model": "crate",
+			"collider": {
+				"shape": { "type": "box", "extents": [0.5, 0.5, 0.5] }
+			}
+		}
 	]
 }
