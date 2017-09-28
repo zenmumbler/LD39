@@ -66,33 +66,36 @@ class LD39Scene implements sd.SceneDelegate {
 				Promise.all(sceneJSON.assets.map((a: asset.Asset) => this.pipeline.process(a)))
 			).then(() => {
 				// -------- DA BASE
-				const baseG = this.assets("model", "base");
-				console.info("BASE", baseG);
-				this.baseMesh = baseG.mesh!;
+				const base = this.assets("model", "base");
+				console.info("BASE", base);
+				this.baseMesh = base.mesh!;
 				this.baseShape = physics.makeShape({
 					type: physics.PhysicsShapeType.Mesh,
 					mesh: this.baseMesh
 				})!;
 
-				this.wallTex = baseG.materials[1].colour.colourTexture!.texture;
-				this.floorTex = baseG.materials[3].colour.colourTexture!.texture;
-				this.doorTex = baseG.materials[2].colour.colourTexture!.texture;
-				this.doorNormalTex = baseG.materials[2].normalTexture!.texture;
-				this.boxTex = this.assets("texture", "crate_diff").texture;
+				this.wallTex = base.materials[1].colour.colourTexture!.texture;
+				this.floorTex = base.materials[3].colour.colourTexture!.texture;
+				this.doorTex = base.materials[2].colour.colourTexture!.texture;
+				this.doorNormalTex = base.materials[2].normalTexture!.texture;
+
+				// -- crate
+				const crate = this.assets("model", "crate");
+				console.info("CRATE", crate);
+				const crateHalfExt = 0.25;
+				this.boxMesh = crate.mesh!;
+				this.boxShape = physics.makeShape({
+					type: physics.PhysicsShapeType.Box,
+					halfExtents: [crateHalfExt, crateHalfExt, crateHalfExt]
+				})!;
+
+				this.boxTex = crate.materials[0].colour.colourTexture!.texture;
 
 				this.soundAssets.music = this.assets("audio", "music");
 				this.soundAssets.steps[0] = this.assets("audio", "step0");
 				this.soundAssets.steps[1] = this.assets("audio", "step1");
 				this.soundAssets.alarm = this.assets("audio", "alarm");
 				this.soundAssets.tremble = this.assets("audio", "rumble");
-
-				// -- boxes
-				const cubeHalfExt = 0.25;
-				this.boxMesh = meshdata.gen.generate(new meshdata.gen.Box(meshdata.gen.cubeDescriptor(cubeHalfExt * 2)));
-				this.boxShape = physics.makeShape({
-					type: physics.PhysicsShapeType.Box,
-					halfExtents: [cubeHalfExt, cubeHalfExt, cubeHalfExt]
-				})!;
 
 				const rcb = new render.RenderCommandBuffer();
 				rcb.allocate(this.wallTex);
