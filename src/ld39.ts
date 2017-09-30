@@ -17,87 +17,13 @@ interface GameObject {
 class LD39Scene implements sd.SceneDelegate {
 	scene: sd.Scene;
 	playerCtl: PlayerController;
-
-	cache: asset.Cache;
-	pipeline: asset.AssetPipeline;
-	assets: asset.CacheAccess;
-
-	// assets (to be removed)
-	wallTex: render.Texture;
-	floorTex: render.Texture;
-	doorTex: render.Texture;
-	doorNormalTex: render.Texture;
-	boxTex: render.Texture;
-
-	boxMesh: meshdata.MeshData;
-	baseMesh: meshdata.MeshData;
-
 	sound_: Sound;
-
-	// component-derived objects (should also be automatic)
-	boxShape: physics.PhysicsShape;
-	baseShape: physics.PhysicsShape;
-
 
 	willLoadAssets() {
 		dom.show(".overlay.loading");
 	}
 	finishedLoadingAssets() {
 		dom.hide(".overlay.loading");
-	}
-
-	loadAssets(): Promise<render.RenderCommandBuffer> {
-		this.cache = {};
-		this.pipeline = asset.makeDefaultPipeline({
-			type: "chain",
-			loaders: [
-				{ type: "data-url" },
-				{ type: "rooted", prefix: "data", loader: { type: "doc-relative-url", relPath: "data/" } }
-			]
-		}, this.cache);
-		this.assets = asset.cacheAccessor(this.cache);
-
-		return io.loadFile("base-scene.json", { tryBreakCache: true, responseType: io.FileLoadType.JSON })
-			.then((sceneJSON: any) => 
-				Promise.all(sceneJSON.assets.map((a: asset.Asset) => this.pipeline.process(a)))
-			).then(() => {
-				// -------- DA BASE
-				const base = this.assets("model", "base");
-				console.info("BASE", base);
-				this.baseMesh = base.mesh!;
-				this.baseShape = physics.makeShape({
-					type: physics.PhysicsShapeType.Mesh,
-					mesh: this.baseMesh
-				})!;
-
-				this.wallTex = base.materials[1].colour.colourTexture!.texture;
-				this.floorTex = base.materials[3].colour.colourTexture!.texture;
-				this.doorTex = base.materials[2].colour.colourTexture!.texture;
-				this.doorNormalTex = base.materials[2].normalTexture!.texture;
-
-				// -- crate
-				const crate = this.assets("model", "crate");
-				console.info("CRATE", crate);
-				const crateHalfExt = 0.25;
-				this.boxMesh = crate.mesh!;
-				this.boxShape = physics.makeShape({
-					type: physics.PhysicsShapeType.Box,
-					halfExtents: [crateHalfExt, crateHalfExt, crateHalfExt]
-				})!;
-
-				this.boxTex = crate.materials[0].colour.colourTexture!.texture;
-
-				const rcb = new render.RenderCommandBuffer();
-				rcb.allocate(this.wallTex);
-				rcb.allocate(this.floorTex);
-				rcb.allocate(this.doorTex);
-				rcb.allocate(this.doorNormalTex);
-				rcb.allocate(this.boxTex);
-				rcb.allocate(this.boxMesh);
-				rcb.allocate(this.baseMesh);
-				return rcb;
-			}
-		);
 	}
 
 	keyboardStuff() {
@@ -192,20 +118,39 @@ class LD39Scene implements sd.SceneDelegate {
 
 		const legacy = this.scene.rw.effectByName("legacy")!;
 
+		// -- base
+		const base = this.scene.assets("model", "base");
+		console.info("BASE", base);
+		const baseMesh = base.mesh!;
+		const baseShape = physics.makeShape({
+			type: physics.PhysicsShapeType.Mesh,
+			mesh: baseMesh
+		})!;
+
+		// -- crate
+		const crate = this.scene.assets("model", "crate");
+		console.info("CRATE", crate);
+		const crateHalfExt = 0.25;
+		const boxMesh = crate.mesh!;
+		const boxShape = physics.makeShape({
+			type: physics.PhysicsShapeType.Box,
+			halfExtents: [crateHalfExt, crateHalfExt, crateHalfExt]
+		})!;
+
 		const boxED = legacy.makeEffectData();
-		legacy.setTexture(boxED, "diffuse", this.boxTex);
+		legacy.setTexture(boxED, "diffuse", crate.materials[0].colour.colourTexture!.texture);
 		const wallED = legacy.makeEffectData();
-		legacy.setTexture(wallED, "diffuse", this.wallTex);
+		legacy.setTexture(wallED, "diffuse", base.materials[1].colour.colourTexture!.texture);
 		legacy.setVector(wallED, "texScaleOffset", [.25, .25, 0, 0]);
 		const ceilED = legacy.makeEffectData();
-		legacy.setTexture(ceilED, "diffuse", this.wallTex);
+		legacy.setTexture(ceilED, "diffuse", base.materials[1].colour.colourTexture!.texture);
 		legacy.setVector(ceilED, "texScaleOffset", [.125, .125, 0, 0]);
 		const floorED = legacy.makeEffectData();
-		legacy.setTexture(floorED, "diffuse", this.floorTex);
+		legacy.setTexture(floorED, "diffuse", base.materials[3].colour.colourTexture!.texture);
 		legacy.setVector(floorED, "texScaleOffset", [.125, .125, 0, 0]);
 		const doorED = legacy.makeEffectData();
-		legacy.setTexture(doorED, "diffuse", this.doorTex);
-		legacy.setTexture(doorED, "normal", this.doorNormalTex);
+		legacy.setTexture(doorED, "diffuse", base.materials[2].colour.colourTexture!.texture);
+		legacy.setTexture(doorED, "normal", base.materials[2].normalTexture!.texture);
 		legacy.setValue(doorED, "specular", 1);
 		const baseEDs = [wallED, ceilED, doorED, floorED];
 
@@ -293,32 +238,32 @@ class LD39Scene implements sd.SceneDelegate {
 		makeCeilingLight(-41, 50); // east final corridor
 		makeCeilingLight(-57, 50, [0, 1, 0]);
 
-		makeGO(0, [0, 0, 0], this.baseMesh, baseEDs, this.baseShape, .9);
+		makeGO(0, [0, 0, 0], baseMesh, baseEDs, baseShape, .9);
 
-		makeGO(1, [-1, .3, 7], this.boxMesh, [boxED], this.boxShape);
+		makeGO(1, [-1, .3, 7], boxMesh, [boxED], boxShape);
 
-		makeGO(1, [-25, .3, 50.3], this.boxMesh, [boxED], this.boxShape);
-		makeGO(1, [-25.1, .8, 50], this.boxMesh, [boxED], this.boxShape);
-		makeGO(1, [-24.9, .3, 49.7], this.boxMesh, [boxED], this.boxShape);
+		makeGO(1, [-25, .3, 50.3], boxMesh, [boxED], boxShape);
+		makeGO(1, [-25.1, .8, 50], boxMesh, [boxED], boxShape);
+		makeGO(1, [-24.9, .3, 49.7], boxMesh, [boxED], boxShape);
 		
-		makeGO(1, [24.7, .3, 54], this.boxMesh, [boxED], this.boxShape);
-		makeGO(1, [23, .3, 55], this.boxMesh, [boxED], this.boxShape);
-		makeGO(1, [23.4, .3, 54.1], this.boxMesh, [boxED], this.boxShape);
-
-		this.playerCtl = new PlayerController(dom.$1("canvas"), [0, 1.1, 3], scene, this.sound_);
+		makeGO(1, [24.7, .3, 54], boxMesh, [boxED], boxShape);
+		makeGO(1, [23, .3, 55], boxMesh, [boxED], boxShape);
+		makeGO(1, [23.4, .3, 54.1], boxMesh, [boxED], boxShape);
 
 		this.sound_ = new Sound(this.scene.ad);
 		this.sound_.setAssets({
-			music: this.assets("audio", "music"),
+			music: this.scene.assets("audio", "music"),
 			steps: [
-				this.assets("audio", "step0"),
-				this.assets("audio", "step1")
+				this.scene.assets("audio", "step0"),
+				this.scene.assets("audio", "step1")
 			],
-			alarm: this.assets("audio", "alarm"),
-			tremble: this.assets("audio", "rumble")
+			alarm: this.scene.assets("audio", "alarm"),
+			tremble: this.scene.assets("audio", "rumble")
 		});
 		this.sound_.startMusic();
 
+		this.playerCtl = new PlayerController(dom.$1("canvas"), [0, 1.1, 3], scene, this.sound_);
+		
 		this.keyboardStuff();
 		this.fullscreenStuff();
 		dom.show(".overlay.titles");
@@ -450,7 +395,7 @@ class LD39Scene implements sd.SceneDelegate {
 
 		if (this.mode === "play") {
 			// allow movement
-			this.playerCtl.step(timeStep);			
+			this.playerCtl.step(timeStep);
 
 			// timer
 			const timeLeft = Math.max(0, this.totalTime - (now - this.playStart));
@@ -541,9 +486,13 @@ sd.App.messages.listenOnce("AppStart", undefined, () => {
 
 	rw.registerEffect(new LegacyEffect());
 
-	const scene = new sd.Scene(rw, adev, {
-		physicsConfig: physics.makeDefaultPhysicsConfig(),
-		delegate: new LD39Scene()
-	});
-	sd.App.scene = scene;
+	io.loadFile("base-scene.json", { tryBreakCache: true, responseType: io.FileLoadType.JSON })
+		.then((sceneJSON: any) => {
+			const scene = new sd.Scene(rw, adev, {
+				physicsConfig: physics.makeDefaultPhysicsConfig(),
+				assets: sceneJSON.assets,
+				delegate: new LD39Scene()
+			});
+			sd.App.scene = scene;
+		});
 });
