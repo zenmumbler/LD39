@@ -112,7 +112,7 @@ class LD39Scene implements sd.SceneDelegate {
 		dom.on(document, "mozfullscreenchange", fsch);
 	}
 
-	buildWorld(): Promise<void> {
+	setup() {
 		const scene = this.scene;
 		this.scene.camera.perspective(65, .1, 20);
 
@@ -267,8 +267,6 @@ class LD39Scene implements sd.SceneDelegate {
 		this.keyboardStuff();
 		this.fullscreenStuff();
 		dom.show(".overlay.titles");
-
-		return Promise.resolve();
 	}
 
 	flicker = false;
