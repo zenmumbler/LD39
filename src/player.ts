@@ -137,7 +137,7 @@ class PlayerController {
 			const newPos = [evt.clientX, evt.clientY];
 			const delta = document.pointerLockElement ? [evt.movementX, evt.movementY] : vec2.sub([], newPos, this.lastPos_);
 			vec2.divide(delta, delta, [-this.vpWidth_, -this.vpHeight_]);
-			vec2.scale(delta, delta, document.pointerLockElement ? .5 : 1);
+			vec2.scale(delta, delta, document.pointerLockElement ? .25 : 1);
 			this.lastPos_ = newPos;
 
 			this.view.rotate(delta);

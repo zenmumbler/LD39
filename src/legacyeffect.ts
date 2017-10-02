@@ -30,12 +30,12 @@ namespace sd.render.shader {
 			float specularStrength = dot(viewVec, reflectVec);
 			if (specularStrength > 0.0) {
 			#ifdef SPECULAR_MAP
-				vec3 specularColour = texture2D(specularSampler, si.UV).rgb;
+				vec3 specularColour = texture2D(specularSampler, si.UV).rgb * mi.specularFactor;
 			#else
-				vec3 specularColour = lightColour;
+				vec3 specularColour = mi.specularFactor;
 			#endif
-				specularStrength = pow(specularStrength, 8.0) * diffuseStrength; // FIXME: not too sure about this (* diffuseStrength)
-				specularContrib = specularColour * specularStrength * 3.0;
+				specularStrength = pow(specularStrength, mi.specularExponent) * diffuseStrength; // FIXME: not too sure about this (* diffuseStrength)
+				specularContrib = specularColour * specularStrength;
 				diffuseContrib += specularContrib;
 			}
 		#endif
