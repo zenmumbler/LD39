@@ -30,11 +30,11 @@ namespace sd.render.effect {
 			float specularStrength = dot(viewVec, reflectVec);
 			if (specularStrength > 0.0) {
 			#ifdef SPECULAR_MAP
-				vec3 specularColour = texture2D(specularSampler, si.UV).rgb * mi.specularFactor;
+				vec3 specularColour = texture2D(specularSampler, si.UV).rgb * mi.specularFactor.rgb;
 			#else
-				vec3 specularColour = mi.specularFactor;
+				vec3 specularColour = mi.specularFactor.rgb;
 			#endif
-				specularStrength = pow(specularStrength, mi.specularExponent) * diffuseStrength; // FIXME: not too sure about this (* diffuseStrength)
+				specularStrength = pow(specularStrength, mi.specularFactor.a) * diffuseStrength; // FIXME: not too sure about this (* diffuseStrength)
 				specularContrib = specularColour * specularStrength;
 				diffuseContrib += specularContrib;
 			}
@@ -122,6 +122,7 @@ namespace sd.render.effect {
 		],
 		constants: [
 			{ name: "baseColour", type: SVT.Float4 },
+			{ name: "specularFactor", type: SVT.Float4, ifExpr: "SPECULAR" },
 		],
 		samplers: [
 			{ name: "albedoMap", type: TextureClass.Plain, index: 0, ifExpr: "ALBEDO_MAP" },
@@ -132,6 +133,7 @@ namespace sd.render.effect {
 				code: `
 				struct MaterialInfo {
 					vec4 albedo;
+					vec4 specularFactor;
 				};
 				`
 			}
@@ -148,6 +150,10 @@ namespace sd.render.effect {
 				colour *= mapColour;
 			#endif
 			mi.albedo = vec4(colour, 1.0);
+
+			#ifdef SPECULAR
+			mi.specularFactor = specularFactor;
+			#endif
 			return mi;
 		}
 		`
@@ -265,7 +271,7 @@ namespace sd.render.gl1 {
 				{ name: "NO_SRGB_TEXTURES", value: +(rd.extSRGB === undefined) },
 				{ name: "HAS_BASE_UV", value: 1 },
 				{ name: "ALBEDO_MAP", value: ldata.diffuse ? 1 : 0 },
-				{ name: "SPECULAR", value: +(ldata.specular) },
+				{ name: "SPECULAR", value: +(ldata.specularFactor[3] !== 0) },
 				{ name: "SPECULAR_MAP", value: 0 },
 				{ name: "NORMAL_MAP", value: ldata.normal ? 1 : 0 },
 				{ name: "HEIGHT_MAP", value: 0 },
@@ -280,7 +286,7 @@ namespace sd.render.gl1 {
 interface LegacyEffectData extends render.EffectData {
 	diffuse: render.Texture | undefined;
 	normal: render.Texture | undefined;
-	specular: boolean;
+	specularFactor: Float32Array;
 	tint: Float32Array;
 	texScaleOffset: Float32Array;
 }
@@ -288,7 +294,7 @@ interface LegacyEffectData extends render.EffectData {
 const LEDID = (ldata: LegacyEffectData) => (
 	(ldata.diffuse ? 1 : 0) << 0 |
 	(ldata.normal ? 1 : 0) << 1 |
-	(ldata.specular ? 1 : 0) << 2
+	(ldata.specularFactor[3] ? 1 : 0) << 2
 );
 
 class LegacyEffect implements render.Effect {
@@ -367,6 +373,7 @@ class LegacyEffect implements render.Effect {
 				{ name: "fogParams", value: this.fogParams },
 				{ name: "lightLUTParam", value: this.lighting_.lutParam },
 				{ name: "baseColour", value: ldata.tint },
+				{ name: "specularFactor", value: ldata.specularFactor },
 				{ name: "texScaleOffset", value: ldata.texScaleOffset }
 			],
 			pipeline: {
@@ -383,7 +390,7 @@ class LegacyEffect implements render.Effect {
 			__effectID: this.id,
 			diffuse: undefined,
 			normal: undefined,
-			specular: false,
+			specularFactor: vec4.zero(),
 			tint: vec4.one(),
 			texScaleOffset: vec4.fromValues(1, 1, 0, 0)
 		};
@@ -414,6 +421,9 @@ class LegacyEffect implements render.Effect {
 		else if (name === "texScaleOffset") {
 			vec4.copy(out, (evd as LegacyEffectData).texScaleOffset);
 		}
+		else if (name === "specularFactor") {
+			vec4.copy(out, (evd as LegacyEffectData).specularFactor);
+		}
 		return out;
 	}
 	setVector(evd: render.EffectData, name: string, vec: sd.ArrayOfConstNumber) {
@@ -423,17 +433,14 @@ class LegacyEffect implements render.Effect {
 		else if (name === "texScaleOffset") {
 			vec4.copy((evd as LegacyEffectData).texScaleOffset, vec);
 		}
+		else if (name === "specularFactor") {
+			vec4.copy((evd as LegacyEffectData).specularFactor, vec);
+		}
 	}
 
 	getValue(evd: render.EffectData, name: string): number | undefined {
-		if (name === "specular") {
-			return +(evd as LegacyEffectData).specular;
-		}
 		return undefined;
 	}
 	setValue(evd: render.EffectData, name: string, val: number) {
-		if (name === "specular") {
-			(evd as LegacyEffectData).specular = !!val;
-		}
 	}
 }
