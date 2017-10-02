@@ -156,7 +156,7 @@ class LD39Scene implements sd.SceneDelegate {
 		const doorED = legacy.makeEffectData();
 		legacy.setTexture(doorED, "diffuse", (base.materials[2] as asset.StandardMaterial).colour.colourTexture!.texture);
 		legacy.setTexture(doorED, "normal", (base.materials[2] as asset.StandardMaterial).normalTexture!.texture);
-		legacy.setVector(doorED, "specularFactor", [3, 3, 3, 8]);
+		legacy.setVector(doorED, "specularFactor", [3, 3, 3, ((base.materials[2] as asset.StandardMaterial).colour as asset.DiffuseSpecularColourResponse).specularExponent]);
 		const baseEDs = [wallED, ceilED, doorED, floorED];
 
 		const makeGO = (mass: number, position: sd.ConstFloat3, meshData: meshdata.MeshData, ed: render.EffectData[], shape: physics.PhysicsShape, friction = 0.6): GameObject => {
