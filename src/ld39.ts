@@ -143,19 +143,19 @@ class LD39Scene implements sd.SceneDelegate {
 		})!;
 
 		const boxED = legacy.makeEffectData();
-		legacy.setTexture(boxED, "diffuse", crate.materials[0].colour.colourTexture!.texture);
+		legacy.setTexture(boxED, "diffuse", (crate.materials[0] as asset.StandardMaterial).colour.colourTexture!.texture);
 		const wallED = legacy.makeEffectData();
-		legacy.setTexture(wallED, "diffuse", base.materials[1].colour.colourTexture!.texture);
+		legacy.setTexture(wallED, "diffuse", (base.materials[1] as asset.StandardMaterial).colour.colourTexture!.texture);
 		legacy.setVector(wallED, "texScaleOffset", [.25, .25, 0, 0]);
 		const ceilED = legacy.makeEffectData();
-		legacy.setTexture(ceilED, "diffuse", base.materials[1].colour.colourTexture!.texture);
+		legacy.setTexture(ceilED, "diffuse", (base.materials[1] as asset.StandardMaterial).colour.colourTexture!.texture);
 		legacy.setVector(ceilED, "texScaleOffset", [.125, .125, 0, 0]);
 		const floorED = legacy.makeEffectData();
-		legacy.setTexture(floorED, "diffuse", base.materials[3].colour.colourTexture!.texture);
+		legacy.setTexture(floorED, "diffuse", (base.materials[3] as asset.StandardMaterial).colour.colourTexture!.texture);
 		legacy.setVector(floorED, "texScaleOffset", [.125, .125, 0, 0]);
 		const doorED = legacy.makeEffectData();
-		legacy.setTexture(doorED, "diffuse", base.materials[2].colour.colourTexture!.texture);
-		legacy.setTexture(doorED, "normal", base.materials[2].normalTexture!.texture);
+		legacy.setTexture(doorED, "diffuse", (base.materials[2] as asset.StandardMaterial).colour.colourTexture!.texture);
+		legacy.setTexture(doorED, "normal", (base.materials[2] as asset.StandardMaterial).normalTexture!.texture);
 		legacy.setValue(doorED, "specular", 1);
 		const baseEDs = [wallED, ceilED, doorED, floorED];
 
