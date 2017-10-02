@@ -22,6 +22,11 @@ class LD39Scene implements sd.SceneDelegate {
 	willLoadAssets() {
 		dom.show(".overlay.loading");
 	}
+
+	assetLoadProgress(ratio: number) {
+		dom.$1(".bar .progress").style.width = Math.round(ratio * 100) + "%";
+	}
+
 	finishedLoadingAssets() {
 		dom.hide(".overlay.loading");
 	}
