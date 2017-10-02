@@ -3,10 +3,10 @@
 
 /// <reference path="imports.ts" />
 
-namespace sd.render.shader {
+namespace sd.render.effect {
 	import SVT = ShaderValueType;
 	
-	gl1Modules.diffuseSpecularLight = {
+	registerModule({
 		name: "diffuseSpecularLight",
 		requires: [
 			"SurfaceInfo",
@@ -43,9 +43,9 @@ namespace sd.render.shader {
 			return diffuseContrib;
 		}
 		`
-	};
+	});
 
-	gl1Modules.basicNormalMap = {
+	registerModule({
 		name: "basicNormalMap",
 		provides: [
 			"NormalMap"
@@ -60,9 +60,9 @@ namespace sd.render.shader {
 		}
 		#endif
 		`
-	};
+	});
 
-	gl1Modules.simpleSurfaceInfo = {
+	registerModule({
 		name: "simpleSurfaceInfo",
 		requires: [
 			// "mathUtils",
@@ -110,9 +110,9 @@ namespace sd.render.shader {
 			return si;
 		}
 		`
-	};
+	});
 
-	gl1Modules.simpleMaterialInfo = {
+	registerModule({
 		name: "simpleMaterialInfo",
 		requires: [
 			"ConvertSRGB",			
@@ -151,7 +151,7 @@ namespace sd.render.shader {
 			return mi;
 		}
 		`
-	};
+	});
 
 } // ns sd.render.shader
 
