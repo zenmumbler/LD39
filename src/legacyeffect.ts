@@ -4,162 +4,10 @@
 /// <reference path="imports.ts" />
 
 namespace sd.render.effect {
+
 	import SVT = ShaderValueType;
 	
-	registerModule({
-		name: "diffuseSpecularLight",
-		requires: [
-			"SurfaceInfo",
-			"MaterialInfo",
-		],
-		samplers: [
-			{ name: "specularSampler", type: TextureClass.Plain, index: 2, ifExpr: "SPECULAR_MAP" }
-		],
-		provides: [
-			"CoreLight"
-		],
-		code: `
-		vec3 calcLightShared(vec3 lightColour, float diffuseStrength, vec3 lightDirection_cam, SurfaceInfo si, MaterialInfo mi) {
-			float NdL = max(0.0, dot(si.N, -lightDirection_cam));
-			vec3 diffuseContrib = lightColour * diffuseStrength * NdL;
-		
-		#ifdef SPECULAR
-			vec3 specularContrib = vec3(0.0);
-			vec3 viewVec = normalize(si.V);
-			vec3 reflectVec = reflect(lightDirection_cam, si.N);
-			float specularStrength = dot(viewVec, reflectVec);
-			if (specularStrength > 0.0) {
-			#ifdef SPECULAR_MAP
-				vec3 specularColour = texture2D(specularSampler, si.UV).rgb * mi.specularFactor.rgb;
-			#else
-				vec3 specularColour = mi.specularFactor.rgb;
-			#endif
-				specularStrength = pow(specularStrength, mi.specularFactor.a) * diffuseStrength; // FIXME: not too sure about this (* diffuseStrength)
-				specularContrib = specularColour * specularStrength;
-				diffuseContrib += specularContrib;
-			}
-		#endif
-
-			return diffuseContrib;
-		}
-		`
-	});
-
-	registerModule({
-		name: "basicNormalMap",
-		provides: [
-			"NormalMap"
-		],
-		samplers: [
-			{ name: "normalMap", type: TextureClass.Plain, index: 1, ifExpr: "NORMAL_MAP" }
-		],
-		code: `
-		#ifdef NORMAL_MAP
-		vec3 getMappedNormal(vec2 uv) {
-			return texture2D(normalMap, uv).xyz * 2.0 - 1.0;
-		}
-		#endif
-		`
-	});
-
-	registerModule({
-		name: "simpleSurfaceInfo",
-		requires: [
-			// "mathUtils",
-			"normalPerturbation",
-			"NormalMap"
-		],
-		provides: [
-			"SurfaceInfo"
-		],
-		structs: [{
-			name: "SurfaceInfo",
-			code: `
-			struct SurfaceInfo {
-				vec3 V;  // vertex dir (cam)
-				vec3 N;  // surface normal (cam)
-			#ifdef HAS_BASE_UV
-				vec2 UV; // (adjusted) main UV
-			#endif
-			};
-			`
-		}],
-		constants: [
-			{ name: "normalMatrix", type: SVT.Float3x3 }
-		],
-		code: `
-		SurfaceInfo calcSurfaceInfo() {
-			SurfaceInfo si;
-			si.V = normalize(-vertexPos_cam);
-			si.N = normalize(vertexNormal_cam);
-			#if defined(HEIGHT_MAP) || defined(NORMAL_MAP)
-				mat3 TBN = cotangentFrame(si.N, vertexPos_cam, vertexUV_intp);
-			#endif
-			#ifdef HEIGHT_MAP
-				vec3 eyeTan = normalize(inverse(TBN) * si.V);
-				// <-- adjust uv using heightmap
-				si.UV = vertexUV_intp;
-			#elif defined(HAS_BASE_UV)
-				si.UV = vertexUV_intp;
-			#endif
-			#ifdef NORMAL_MAP
-				vec3 mapNormal = getMappedNormal(si.UV);
-				// mapNormal.y = -mapNormal.y;
-				si.N = normalize(TBN * mapNormal);
-			#endif
-			return si;
-		}
-		`
-	});
-
-	registerModule({
-		name: "simpleMaterialInfo",
-		requires: [
-			"ConvertSRGB",			
-		],
-		provides: [
-			"MaterialInfo"
-		],
-		constants: [
-			{ name: "baseColour", type: SVT.Float4 },
-			{ name: "specularFactor", type: SVT.Float4, ifExpr: "SPECULAR" },
-		],
-		samplers: [
-			{ name: "albedoMap", type: TextureClass.Plain, index: 0, ifExpr: "ALBEDO_MAP" },
-		],
-		structs: [
-			{
-				name: "MaterialInfo",
-				code: `
-				struct MaterialInfo {
-					vec4 albedo;
-					vec4 specularFactor;
-				};
-				`
-			}
-		],
-		code: `
-		MaterialInfo getMaterialInfo(vec2 materialUV) {
-			MaterialInfo mi;
-			vec3 colour = srgbToLinear(baseColour.rgb);
-			#ifdef ALBEDO_MAP
-				vec3 mapColour = texture2D(albedoMap, materialUV).rgb;
-				#ifdef NO_SRGB_TEXTURES
-					mapColour = srgbToLinear(mapColour);
-				#endif
-				colour *= mapColour;
-			#endif
-			mi.albedo = vec4(colour, 1.0);
-
-			#ifdef SPECULAR
-			mi.specularFactor = specularFactor;
-			#endif
-			return mi;
-		}
-		`
-	});
-
-} // ns sd.render.shader
+} // effect
 
 namespace sd.render.gl1 {
 	import AttrRole = meshdata.VertexAttributeRole;
@@ -209,53 +57,25 @@ namespace sd.render.gl1 {
 			outCount: 1,
 
 			modules: [
-				"lightContrib",
+				"shadowedTotalLightContrib",
 				"tiledLight",
-				"basicSRGB",
-				"simpleMaterialInfo",
-				"simpleSurfaceInfo",
-				"diffuseSpecularLight",
-				"basicNormalMap"
-			],
-
-			constants: [
-				{ name: "fogColour", type: SVT.Float4 },
-				{ name: "fogParams", type: SVT.Float4 },
-			],
-
-			constValues: [
-				{ name: "FOGPARAM_START", type: SVT.Int, expr: "0" },
-				{ name: "FOGPARAM_DEPTH", type: SVT.Int, expr: "1" },
-				{ name: "FOGPARAM_DENSITY", type: SVT.Int, expr: "2" },
+				"grading/srgb/basic",
+				"legacy/colourResponse",
+				"basicNormalMap",
+				"DepthFog",
+				"fog/depth/linear"
 			],
 
 			main: `
 			SurfaceInfo si = calcSurfaceInfo();
 			MaterialInfo mi = getMaterialInfo(si.UV);
 
-			vec3 totalLight = vec3(0.015, 0.01, 0.02);
+			vec3 totalLight = totalDynamicLightContributionTiledForward(si, mi);
+			totalLight += vec3(0.015, 0.01, 0.02);
 
-			vec2 fragCoord = vec2(gl_FragCoord.x, lightLUTParam.y - gl_FragCoord.y);
-			vec2 lightOffsetCount = getLightGridCell(fragCoord);
-			int lightListOffset = int(lightOffsetCount.x);
-			int lightListCount = int(lightOffsetCount.y);
+			totalLight = applyDepthFog(totalLight * mi.albedo.rgb, length(vertexPos_cam));
 
-			for (int llix = 0; llix < 128; ++llix) {
-				if (llix == lightListCount) break; // hack to overcome gles2 limitation where loops need constant max counters 
-
-				float lightIx = getLightIndex(float(lightListOffset + llix));
-				LightEntry lightData = getLightEntry(lightIx);
-				if (lightData.colourAndType.w <= 0.0) break;
-
-				totalLight += getLightContribution(lightData, si, mi);
-			}
-
-			float fogDensity = clamp((length(vertexPos_cam) - fogParams[FOGPARAM_START]) / fogParams[FOGPARAM_DEPTH], 0.0, fogParams[FOGPARAM_DENSITY]);
-			totalLight = mix(totalLight * mi.albedo.rgb, fogColour.rgb, fogDensity);
-			// totalLight = totalLight * mi.albedo.rgb;
-
-			gl_FragColor = vec4(pow(totalLight, vec3(1.0 / 2.2)), 1.0);
-			// gl_FragColor = vec4(totalLight, 1.0);
+			gl_FragColor = vec4(linearToSRGB(totalLight), 1.0);
 			`
 		};
 	}
@@ -443,4 +263,5 @@ class LegacyEffect implements render.Effect {
 	}
 	setValue(evd: render.EffectData, name: string, val: number) {
 	}
+
 }
