@@ -361,7 +361,7 @@ class LD39Scene implements sd.SceneDelegate {
 		}, 1000);
 
 		const now = sd.App.globalTime;
-		this.nextRumble = now + 8;
+		this.nextRumble = now + 1000; // 8;
 		this.playStart = now;
 	}
 
@@ -372,7 +372,7 @@ class LD39Scene implements sd.SceneDelegate {
 		// flicker lights
 		if (this.mode !== "end") {
 			if (now > this.flickerEnd) {
-				const willFlicker = Math.random() < 0.01;
+				const willFlicker = Math.random() < 0.00;
 
 				if (willFlicker !== this.flicker) {
 					this.flicker = willFlicker;
