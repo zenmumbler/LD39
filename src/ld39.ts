@@ -3,7 +3,6 @@
 
 /// <reference path="imports.ts" />
 /// <reference path="sfx.ts" />
-/// <reference path="legacyeffect.ts" />
 
 interface GameObject {
 	entity: entity.Entity;
@@ -121,7 +120,7 @@ class LD39Scene implements sd.SceneDelegate {
 		const scene = this.scene;
 		this.scene.camera.perspective(65, .1, 20);
 
-		const legacy = this.scene.rw.effectByName("legacy")!;
+		const standard = this.scene.rw.effectByName("standard")!;
 
 		// -- base
 		const base = this.scene.assets("model", "base");
@@ -142,21 +141,21 @@ class LD39Scene implements sd.SceneDelegate {
 			halfExtents: [crateHalfExt, crateHalfExt, crateHalfExt]
 		})!;
 
-		const boxED = legacy.makeEffectData();
-		legacy.setTexture(boxED, "diffuse", (crate.materials[0] as asset.StandardMaterial).colour.colourTexture!.texture);
-		const wallED = legacy.makeEffectData();
-		legacy.setTexture(wallED, "diffuse", (base.materials[1] as asset.StandardMaterial).colour.colourTexture!.texture);
-		legacy.setVector(wallED, "texScaleOffset", [.25, .25, 0, 0]);
-		const ceilED = legacy.makeEffectData();
-		legacy.setTexture(ceilED, "diffuse", (base.materials[1] as asset.StandardMaterial).colour.colourTexture!.texture);
-		legacy.setVector(ceilED, "texScaleOffset", [.125, .125, 0, 0]);
-		const floorED = legacy.makeEffectData();
-		legacy.setTexture(floorED, "diffuse", (base.materials[3] as asset.StandardMaterial).colour.colourTexture!.texture);
-		legacy.setVector(floorED, "texScaleOffset", [.125, .125, 0, 0]);
-		const doorED = legacy.makeEffectData();
-		legacy.setTexture(doorED, "diffuse", (base.materials[2] as asset.StandardMaterial).colour.colourTexture!.texture);
-		legacy.setTexture(doorED, "normal", (base.materials[2] as asset.StandardMaterial).normalTexture!.texture);
-		legacy.setVector(doorED, "specularFactor", [3, 3, 3, ((base.materials[2] as asset.StandardMaterial).colour as asset.DiffuseSpecularColourResponse).specularExponent]);
+		const boxED = standard.makeEffectData();
+		standard.setTexture(boxED, "diffuse", (crate.materials[0] as asset.StandardMaterial).colour.colourTexture!.texture);
+		const wallED = standard.makeEffectData();
+		standard.setTexture(wallED, "diffuse", (base.materials[1] as asset.StandardMaterial).colour.colourTexture!.texture);
+		standard.setVector(wallED, "texScaleOffset", [.25, .25, 0, 0]);
+		const ceilED = standard.makeEffectData();
+		standard.setTexture(ceilED, "diffuse", (base.materials[1] as asset.StandardMaterial).colour.colourTexture!.texture);
+		standard.setVector(ceilED, "texScaleOffset", [.125, .125, 0, 0]);
+		const floorED = standard.makeEffectData();
+		standard.setTexture(floorED, "diffuse", (base.materials[3] as asset.StandardMaterial).colour.colourTexture!.texture);
+		standard.setVector(floorED, "texScaleOffset", [.125, .125, 0, 0]);
+		const doorED = standard.makeEffectData();
+		standard.setTexture(doorED, "diffuse", (base.materials[2] as asset.StandardMaterial).colour.colourTexture!.texture);
+		standard.setTexture(doorED, "normal", (base.materials[2] as asset.StandardMaterial).normalTexture!.texture);
+		standard.setVector(doorED, "specularFactor", [3, 3, 3, ((base.materials[2] as asset.StandardMaterial).colour as asset.DiffuseSpecularColourResponse).specularExponent]);
 		const baseEDs = [wallED, ceilED, doorED, floorED];
 
 		const makeGO = (mass: number, position: sd.ConstFloat3, meshData: meshdata.MeshData, ed: render.EffectData[], shape: physics.PhysicsShape, friction = 0.6): GameObject => {
@@ -486,8 +485,6 @@ sd.App.messages.listenOnce("AppStart", undefined, () => {
 	const stageHolder = dom.$1(".stageholder");
 	const rw = new render.RenderWorld(stageHolder, 1280, 720);
 	const adev = audio.makeAudioDevice()!;
-
-	rw.registerEffect(new LegacyEffect());
 
 	io.loadFile("base-scene.json", { tryBreakCache: true, responseType: io.FileLoadType.JSON })
 		.then((sceneJSON: any) => {
