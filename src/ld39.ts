@@ -93,8 +93,8 @@ class LD39Scene implements sd.SceneDelegate {
 					const hOffset = Math.round((screen.width - rw.drawableWidth) / (2 * scaleFactor)) + "px";
 					const vOffset = Math.round((screen.height - rw.drawableHeight) / (2 * scaleFactor)) + "px";
 
-					dom.$(".stageholder > *").forEach((e: HTMLElement) => {
-						e.style.transform = `scale(${scaleFactor}) translate(${hOffset}, ${vOffset})`;
+					dom.$(".stageholder > *").forEach(e => {
+						(e as HTMLElement).style.transform = `scale(${scaleFactor}) translate(${hOffset}, ${vOffset})`;
 					});
 				}
 				else {
@@ -105,8 +105,8 @@ class LD39Scene implements sd.SceneDelegate {
 			}
 			else {
 				canvas.style.transform = "";
-				dom.$(".stageholder > *").forEach((e: HTMLElement) => {
-					e.style.transform = "";
+				dom.$(".stageholder > *").forEach(e => {
+					(e as HTMLElement).style.transform = "";
 				});
 			}
 		};
