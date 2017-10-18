@@ -125,17 +125,17 @@ class LD39Scene implements sd.SceneDelegate {
 		// -- base
 		const base = this.scene.assets("model", "base");
 		console.info("BASE", base);
-		const baseMesh = base.mesh!;
+		const baseGeom = base.geom!;
 		const baseShape = physics.makeShape({
 			type: physics.PhysicsShapeType.Mesh,
-			mesh: baseMesh
+			geom: baseGeom
 		})!;
 
 		// -- crate
 		const crate = this.scene.assets("model", "crate");
 		console.info("CRATE", crate);
 		const crateHalfExt = 0.25;
-		const boxMesh = crate.mesh!;
+		const boxGeom = crate.geom!;
 		const boxShape = physics.makeShape({
 			type: physics.PhysicsShapeType.Box,
 			halfExtents: [crateHalfExt, crateHalfExt, crateHalfExt]
@@ -158,7 +158,7 @@ class LD39Scene implements sd.SceneDelegate {
 		standard.setVector(doorED, "specularFactor", [3, 3, 3, ((base.materials[2] as asset.StandardMaterial).colour as asset.DiffuseSpecularColourResponse).specularExponent]);
 		const baseEDs = [wallED, ceilED, doorED, floorED];
 
-		const makeGO = (mass: number, position: sd.ConstFloat3, meshData: meshdata.MeshData, ed: render.EffectData[], shape: physics.PhysicsShape, friction = 0.6): GameObject => {
+		const makeGO = (mass: number, position: sd.ConstFloat3, geom: geometry.Geometry, ed: render.EffectData[], shape: physics.PhysicsShape, friction = 0.6): GameObject => {
 			const entity = scene.entities.create();
 			const transform = scene.transforms.create(entity, { position });
 			const collider = scene.colliders.create(entity, { rigidBody: {
@@ -166,7 +166,7 @@ class LD39Scene implements sd.SceneDelegate {
 				shape,
 				friction
 			}});
-			const mesh = scene.meshes.create(meshData);
+			const mesh = scene.meshes.create(geom);
 			scene.meshes.linkToEntity(mesh, entity);
 			const renderer = scene.renderers.create(entity, {
 				materials: ed
@@ -242,17 +242,17 @@ class LD39Scene implements sd.SceneDelegate {
 		makeCeilingLight(-41, 50); // east final corridor
 		makeCeilingLight(-57, 50, [0, 1, 0]);
 
-		makeGO(0, [0, 0, 0], baseMesh, baseEDs, baseShape, .9);
+		makeGO(0, [0, 0, 0], baseGeom, baseEDs, baseShape, .9);
 
-		makeGO(1, [-1, .3, 7], boxMesh, [boxED], boxShape);
+		makeGO(1, [-1, .3, 7], boxGeom, [boxED], boxShape);
 
-		makeGO(1, [-25, .3, 50.3], boxMesh, [boxED], boxShape);
-		makeGO(1, [-25.1, .8, 50], boxMesh, [boxED], boxShape);
-		makeGO(1, [-24.9, .3, 49.7], boxMesh, [boxED], boxShape);
+		makeGO(1, [-25, .3, 50.3], boxGeom, [boxED], boxShape);
+		makeGO(1, [-25.1, .8, 50], boxGeom, [boxED], boxShape);
+		makeGO(1, [-24.9, .3, 49.7], boxGeom, [boxED], boxShape);
 		
-		makeGO(1, [24.7, .3, 54], boxMesh, [boxED], boxShape);
-		makeGO(1, [23, .3, 55], boxMesh, [boxED], boxShape);
-		makeGO(1, [23.4, .3, 54.1], boxMesh, [boxED], boxShape);
+		makeGO(1, [24.7, .3, 54], boxGeom, [boxED], boxShape);
+		makeGO(1, [23, .3, 55], boxGeom, [boxED], boxShape);
+		makeGO(1, [23.4, .3, 54.1], boxGeom, [boxED], boxShape);
 
 		this.sound_ = new Sound(this.scene.ad);
 		this.sound_.setAssets({
