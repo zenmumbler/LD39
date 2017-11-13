@@ -1,4 +1,6 @@
 {
+	"$schema": "file:///Users/arthur/Sites/sdtx/stardazed/schemas/scene-01.json#",
+	"version": 1,
 	"delegate": "LD39Scene",
 	"assets": [
 		{
@@ -44,7 +46,9 @@
 			"pos": [0, 0, 0],
 			"model": "base",
 			"collider": {
-				"shape": "mesh",
+				"shape": {
+					"type": "mesh"
+				},
 				"friction": 0.9
 			}
 		},
