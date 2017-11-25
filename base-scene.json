@@ -1,7 +1,8 @@
 {
-	"$schema": "file:///Users/arthur/Sites/sdtx/stardazed/schemas/scene-01.json#",
-	"version": 1,
-	"delegate": "LD39Scene",
+	"$schema": "file:///Users/arthur/Sites/sdtx/stardazed/schemas/assets-01.json#",
+	"schema-version": 1,
+	"author": "Arthur Langereis",
+	"project": "Run! (LD39)",
 	"assets": [
 		{
 			"kind": "model",
@@ -40,45 +41,5 @@
 		{ "name": "step1", "uri": "data/sound/34253__ddohler__hard-walking_1.mp3" },
 		{ "name": "alarm", "uri": "data/sound/381957__avensol__security-alarm.mp3" },
 		{ "name": "rumble", "uri": "data/sound/363122__el-bee__landmass-earth-rumble.mp3" }
-	],
-	"entities": [
-		{
-			"pos": [0, 0, 0],
-			"model": "base",
-			"collider": {
-				"shape": {
-					"type": "mesh"
-				},
-				"friction": 0.9
-			}
-		},
-		{
-			"pos": [-1, 0.3, 0.7],
-			"model": "crate",
-			"collider": {
-				"shape": { "type": "box", "extents": [0.5, 0.5, 0.5] }
-			}
-		},
-		{
-			"pos": [-25, 0.3, 50.3],
-			"model": "crate",
-			"collider": {
-				"shape": { "type": "box", "extents": [0.5, 0.5, 0.5] }
-			}
-		},
-		{
-			"pos": [-25.1, 0.8, 50],
-			"model": "crate",
-			"collider": {
-				"shape": { "type": "box", "extents": [0.5, 0.5, 0.5] }
-			}
-		},
-		{
-			"pos": [-24.9, 0.3, 49.7],
-			"model": "crate",
-			"collider": {
-				"shape": { "type": "box", "extents": [0.5, 0.5, 0.5] }
-			}
-		}
 	]
 }
